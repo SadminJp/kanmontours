@@ -1,0 +1,206 @@
+---
+import type { UiStrings } from '../data/types';
+
+interface Props {
+  ui: UiStrings;
+  inputName?: string;
+}
+
+const { ui, inputName = 'preferred-date' } = Astro.props;
+---
+
+<div
+  class="booking-calendar"
+  data-months={JSON.stringify(ui.calendar.months)}
+  data-weekdays={JSON.stringify(ui.calendar.weekdays)}
+  data-selected-label={ui.booking.selectedDate}
+>
+  <div class="booking-calendar__header">
+    <button type="button" class="booking-calendar__nav" data-action="prev" aria-label="Previous month">&#9664;</button>
+    <span class="booking-calendar__title"></span>
+    <button type="button" class="booking-calendar__nav" data-action="next" aria-label="Next month">&#9654;</button>
+  </div>
+  <div class="booking-calendar__weekdays"></div>
+  <div class="booking-calendar__grid"></div>
+  <p class="booking-calendar__selected"></p>
+  <input type="hidden" name={inputName} class="booking-calendar__input" required />
+</div>
+
+<style>
+  .booking-calendar {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    max-width: 420px;
+  }
+
+  .booking-calendar__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  .booking-calendar__title {
+    font-weight: 700;
+    color: var(--color-navy);
+  }
+
+  .booking-calendar__nav {
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
+    color: var(--color-blue-dark);
+  }
+
+  .booking-calendar__nav:hover {
+    background: var(--color-blue);
+    color: #ffffff;
+  }
+
+  .booking-calendar__weekdays,
+  .booking-calendar__grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+    text-align: center;
+  }
+
+  .booking-calendar__weekdays div {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    padding: 0.25rem 0;
+  }
+
+  .booking-calendar__day {
+    padding: 0.5rem 0;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .booking-calendar__day:hover {
+    background: var(--color-bg-alt);
+  }
+
+  .booking-calendar__day.is-empty {
+    cursor: default;
+  }
+
+  .booking-calendar__day.is-past {
+    color: var(--color-border);
+    cursor: not-allowed;
+  }
+
+  .booking-calendar__day.is-selected {
+    background: var(--color-orange);
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .booking-calendar__selected {
+    margin: 0.75rem 0 0;
+    font-weight: 600;
+    color: var(--color-navy);
+    min-height: 1.5em;
+  }
+</style>
+
+<script>
+  function initCalendars() {
+    document.querySelectorAll<HTMLElement>('.booking-calendar').forEach((calendar) => {
+      if (calendar.dataset.initialized) return;
+      calendar.dataset.initialized = 'true';
+
+      const months: string[] = JSON.parse(calendar.dataset.months || '[]');
+      const weekdays: string[] = JSON.parse(calendar.dataset.weekdays || '[]');
+      const selectedLabel = calendar.dataset.selectedLabel || 'Selected date';
+
+      const titleEl = calendar.querySelector<HTMLElement>('.booking-calendar__title')!;
+      const weekdaysEl = calendar.querySelector<HTMLElement>('.booking-calendar__weekdays')!;
+      const gridEl = calendar.querySelector<HTMLElement>('.booking-calendar__grid')!;
+      const selectedEl = calendar.querySelector<HTMLElement>('.booking-calendar__selected')!;
+      const inputEl = calendar.querySelector<HTMLInputElement>('.booking-calendar__input')!;
+      const prevBtn = calendar.querySelector<HTMLButtonElement>('[data-action="prev"]')!;
+      const nextBtn = calendar.querySelector<HTMLButtonElement>('[data-action="next"]')!;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      let viewYear = today.getFullYear();
+      let viewMonth = today.getMonth();
+
+      weekdaysEl.innerHTML = weekdays.map((day) => `<div>${day}</div>`).join('');
+
+      function render() {
+        titleEl.textContent = `${months[viewMonth]} ${viewYear}`;
+
+        const firstDay = new Date(viewYear, viewMonth, 1);
+        const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+        const startWeekday = firstDay.getDay();
+
+        const cells: string[] = [];
+        for (let i = 0; i < startWeekday; i++) {
+          cells.push('<div class="booking-calendar__day is-empty"></div>');
+        }
+        for (let day = 1; day <= daysInMonth; day++) {
+          const cellDate = new Date(viewYear, viewMonth, day);
+          const isPast = cellDate < today;
+          const iso = cellDate.toISOString().slice(0, 10);
+          const isSelected = inputEl.value === iso;
+          const classes = ['booking-calendar__day'];
+          if (isPast) classes.push('is-past');
+          if (isSelected) classes.push('is-selected');
+          cells.push(
+            `<div class="${classes.join(' ')}" data-date="${iso}" ${isPast ? '' : 'role="button" tabindex="0"'}>${day}</div>`
+          );
+        }
+
+        gridEl.innerHTML = cells.join('');
+
+        gridEl.querySelectorAll<HTMLElement>('.booking-calendar__day:not(.is-empty):not(.is-past)').forEach((cell) => {
+          cell.addEventListener('click', () => selectDate(cell.dataset.date!));
+          cell.addEventListener('keydown', (event) => {
+            if (event instanceof KeyboardEvent && (event.key === 'Enter' || event.key === ' ')) {
+              event.preventDefault();
+              selectDate(cell.dataset.date!);
+            }
+          });
+        });
+      }
+
+      function selectDate(iso: string) {
+        inputEl.value = iso;
+        selectedEl.textContent = `${selectedLabel}: ${iso}`;
+        render();
+      }
+
+      prevBtn.addEventListener('click', () => {
+        viewMonth -= 1;
+        if (viewMonth < 0) {
+          viewMonth = 11;
+          viewYear -= 1;
+        }
+        render();
+      });
+
+      nextBtn.addEventListener('click', () => {
+        viewMonth += 1;
+        if (viewMonth > 11) {
+          viewMonth = 0;
+          viewYear += 1;
+        }
+        render();
+      });
+
+      render();
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initCalendars);
+  document.addEventListener('astro:page-load', initCalendars);
+</script>

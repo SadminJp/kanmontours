@@ -1,0 +1,72 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BookingCalendar from '../../components/BookingCalendar.astro';
+import { siteEn } from '../../data/site.en';
+import { toursEn } from '../../data/tours.en';
+import { uiEn } from '../../data/ui.en';
+
+const ui = uiEn;
+const tours = toursEn;
+
+// TODO: replace with your real Formspree form ID (https://formspree.io/)
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/REPLACE_WITH_BOOKING_FORM_ID';
+---
+
+<Layout
+  locale="en"
+  title={`${ui.booking.pageTitle} — ${siteEn.meta.title}`}
+  description={siteEn.meta.description}
+  ui={ui}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>{ui.booking.pageTitle}</h1>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <form action={FORMSPREE_ENDPOINT} method="POST" class="booking-form">
+        <h2>{ui.booking.step1}</h2>
+        <div class="tour-options">
+          {tours.map((tour) => (
+            <label class="tour-option">
+              <input type="checkbox" name="tours" value={`${tour.number} ${tour.title} (${tour.bookingPrice})`} />
+              <span>{tour.number} &mdash; {tour.title} &mdash; {tour.bookingPrice} {ui.booking.perPerson}</span>
+            </label>
+          ))}
+        </div>
+
+        <h2>{ui.booking.step2}</h2>
+        <p>{ui.booking.calendarHint}</p>
+        <BookingCalendar ui={ui} inputName="preferred-date" />
+
+        <h2>{ui.booking.step3}</h2>
+        <label class="form-field">
+          <span>{ui.booking.fields.totalParticipants}</span>
+          <input type="number" name="total-participants" min="1" required />
+        </label>
+        <label class="form-field">
+          <span>{ui.booking.fields.name}</span>
+          <input type="text" name="name" required />
+        </label>
+        <label class="form-field">
+          <span>{ui.booking.fields.email}</span>
+          <input type="email" name="email" required />
+        </label>
+
+        <h2>{ui.booking.step4}</h2>
+        <label class="form-checkbox">
+          <input type="checkbox" name="terms-agreed" required />
+          <span>
+            {ui.booking.termsAgree}
+            {' '}
+            <a href="../policies/">{ui.nav.policies}</a>
+          </span>
+        </label>
+
+        <button type="submit" class="btn btn--primary">{ui.booking.submit}</button>
+      </form>
+    </div>
+  </section>
+</Layout>

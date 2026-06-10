@@ -1,0 +1,72 @@
+import type { UiStrings } from './types';
+
+export const uiEn: UiStrings = {
+  nav: {
+    home: 'Home',
+    aboutCities: 'About the Cities',
+    offer: 'What We Offer',
+    tours: 'Tours',
+    aboutUs: 'About Us',
+    booking: 'Booking',
+    inquiry: 'Inquiry',
+    policies: 'Terms & Conditions',
+    langSwitchLabel: 'Language',
+    langSwitchTo: '日本語',
+  },
+  buttons: {
+    readMore: 'Read More',
+    detailsAndBooking: 'Details & Booking',
+    booking: 'Booking',
+    inquiry: 'Inquiry',
+  },
+  tourMeta: {
+    overview: 'Tour Overview',
+    highlights: 'Highlights',
+    price: 'Price',
+    included: 'Included',
+    notIncluded: 'Not Included',
+    departureTime: 'Departure Time',
+    duration: 'Duration',
+    meetingPoint: 'Meeting Point',
+    groupSize: 'Group Size',
+    operatingDates: 'Operating Dates',
+    itinerary: 'Itinerary',
+    walkingDistance: 'Walking Distance',
+  },
+  booking: {
+    pageTitle: 'Booking Request',
+    step1: '1. Please tick the box to choose a tour.',
+    step2: '2. Check availability by Tour Calendar, and click the date.',
+    calendarHint: 'Click a date to select it for your booking.',
+    step3: '3. Please give us your information',
+    fields: {
+      totalParticipants: 'Total No. of Participants',
+      name: 'Name',
+      email: 'e-mail Address',
+    },
+    step4: '4. Terms & Conditions',
+    termsAgree: 'By checking this box I acknowledge having read and accepted the Terms & Conditions.',
+    submit: 'SEND',
+    perPerson: 'per person',
+    selectedDate: 'Selected date',
+  },
+  inquiryForm: {
+    pageTitle: 'Inquiry',
+    intro: 'Please fill in the form. We will reply within three working days.',
+    name: 'Name',
+    email: 'Your e-mail address',
+    message: 'Message',
+    submit: 'SEND',
+  },
+  footer: {
+    quickLinks: 'Quick Links',
+    rights: 'All rights reserved.',
+  },
+  calendar: {
+    months: [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ],
+    weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  },
+};

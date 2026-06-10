@@ -1,0 +1,44 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { siteEn } from '../../data/site.en';
+import { uiEn } from '../../data/ui.en';
+
+const ui = uiEn;
+
+// TODO: replace with your real Formspree form ID (https://formspree.io/)
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/REPLACE_WITH_INQUIRY_FORM_ID';
+---
+
+<Layout
+  locale="en"
+  title={`${ui.inquiryForm.pageTitle} — ${siteEn.meta.title}`}
+  description={siteEn.meta.description}
+  ui={ui}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>{ui.inquiryForm.pageTitle}</h1>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p>{ui.inquiryForm.intro}</p>
+      <form action={FORMSPREE_ENDPOINT} method="POST" class="inquiry-form">
+        <label class="form-field">
+          <span>{ui.inquiryForm.name}</span>
+          <input type="text" name="name" required />
+        </label>
+        <label class="form-field">
+          <span>{ui.inquiryForm.email}</span>
+          <input type="email" name="email" required />
+        </label>
+        <label class="form-field">
+          <span>{ui.inquiryForm.message}</span>
+          <textarea name="message" rows="6" required></textarea>
+        </label>
+        <button type="submit" class="btn btn--primary">{ui.inquiryForm.submit}</button>
+      </form>
+    </div>
+  </section>
+</Layout>

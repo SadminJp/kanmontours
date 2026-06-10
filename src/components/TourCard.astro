@@ -1,0 +1,73 @@
+---
+import type { Locale, TourContent, UiStrings } from '../data/types';
+
+interface Props {
+  locale: Locale;
+  tour: TourContent;
+  ui: UiStrings;
+}
+
+const { locale, tour, ui } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<article class="tour-card card">
+  <img src={`${base}${tour.heroImage}`} alt={tour.title} loading="lazy" />
+  <div class="tour-card__body">
+    <span class="tour-card__number">{tour.number}</span>
+    <h3>{tour.title}</h3>
+    <p class="tour-card__subtitle">{tour.subtitle}</p>
+    <p class="tour-card__summary">{tour.cardSummary}</p>
+    <a class="btn btn--secondary" href={`${base}/${locale}/tours/${tour.slug}/`}>{ui.buttons.detailsAndBooking}</a>
+  </div>
+</article>
+
+<style>
+  .tour-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tour-card img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .tour-card__body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+  }
+
+  .tour-card__number {
+    color: var(--color-orange);
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tour-card h3 {
+    margin: 0;
+  }
+
+  .tour-card__subtitle {
+    color: var(--color-blue-dark);
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .tour-card__summary {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    flex: 1;
+  }
+
+  .tour-card .btn {
+    align-self: flex-start;
+    margin-top: 0.5rem;
+  }
+</style>

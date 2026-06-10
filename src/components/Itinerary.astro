@@ -1,0 +1,61 @@
+---
+import type { ItineraryStep } from '../data/types';
+
+interface Props {
+  steps: ItineraryStep[];
+}
+
+const { steps } = Astro.props;
+---
+
+<ol class="itinerary">
+  {steps.map((step, index) => (
+    <li class="itinerary__step">
+      <span class="itinerary__marker">{index + 1}</span>
+      <p>{step.text}</p>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .itinerary {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .itinerary__step {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    gap: 0.75rem;
+    position: relative;
+    padding-bottom: 1.5rem;
+  }
+
+  .itinerary__step:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 1.05rem;
+    top: 2.25rem;
+    bottom: 0;
+    width: 2px;
+    background: var(--color-border);
+  }
+
+  .itinerary__marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--color-orange);
+    color: #ffffff;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .itinerary__step p {
+    margin: 0.25rem 0 0;
+  }
+</style>

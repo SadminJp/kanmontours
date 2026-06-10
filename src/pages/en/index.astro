@@ -1,0 +1,92 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import TourCard from '../../components/TourCard.astro';
+import { siteEn } from '../../data/site.en';
+import { toursEn } from '../../data/tours.en';
+import { uiEn } from '../../data/ui.en';
+
+const site = siteEn;
+const tours = toursEn;
+const ui = uiEn;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<Layout locale="en" title={site.meta.title} description={site.meta.description} ui={ui}>
+  <section class="hero" style={`--hero-bg-image: url(${base}/images/hero.jpg)`}>
+    <div class="container">
+      <span class="eyebrow">{site.hero.eyebrow}</span>
+      <h1>{site.hero.title}</h1>
+      <p class="tagline">{site.hero.tagline}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>{site.intro.heading}</h2>
+      {site.intro.paragraphs.map((p) => <p>{p}</p>)}
+    </div>
+  </section>
+
+  <section id="about-cities" class="section section--alt">
+    <div class="container">
+      <h2>{site.cities.heading}</h2>
+      <div class="grid grid--2">
+        <div>
+          <h3>{site.cities.kitakyushu.title}</h3>
+          {site.cities.kitakyushu.paragraphs.map((p) => <p>{p}</p>)}
+        </div>
+        <div>
+          <h3>{site.cities.shimonoseki.title}</h3>
+          {site.cities.shimonoseki.paragraphs.map((p) => <p>{p}</p>)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="offer" class="section">
+    <div class="container">
+      <h2>{site.offer.heading}</h2>
+      {site.offer.paragraphs.map((p) => <p>{p}</p>)}
+      <h3>{site.offer.specialHeading}</h3>
+      <ul class="bullet-list">
+        {site.offer.specialPoints.map((point) => <li>{point}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section id="tours" class="section section--alt">
+    <div class="container">
+      <h2>{site.tours.heading}</h2>
+      <p>{site.tours.intro}</p>
+      <div class="grid grid--4">
+        {tours.map((tour) => <TourCard locale="en" tour={tour} ui={ui} />)}
+      </div>
+    </div>
+  </section>
+
+  <section id="about-us" class="section">
+    <div class="container">
+      <h2>{site.about.heading}</h2>
+      {site.about.paragraphs.map((p) => <p>{p}</p>)}
+    </div>
+  </section>
+
+  <section id="access" class="section section--alt">
+    <div class="container">
+      <h2>{site.access.heading}</h2>
+      <div class="grid grid--2">
+        {site.access.groups.map((group) => (
+          <div>
+            <h3>{group.heading}</h3>
+            {group.routes.map((route) => (
+              <div>
+                <strong>{route.label}</strong>
+                {route.lines.map((line) => <p>{line}</p>)}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>

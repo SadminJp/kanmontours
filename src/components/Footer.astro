@@ -1,0 +1,86 @@
+---
+import type { Locale, UiStrings } from '../data/types';
+import { siteEn } from '../data/site.en';
+import { siteJa } from '../data/site.ja';
+
+interface Props {
+  locale: Locale;
+  ui: UiStrings;
+}
+
+const { locale, ui } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const site = locale === 'en' ? siteEn : siteJa;
+
+const links = [
+  { href: `${base}/${locale}/`, label: ui.nav.home },
+  { href: `${base}/${locale}/#tours`, label: ui.nav.tours },
+  { href: `${base}/${locale}/booking/`, label: ui.nav.booking },
+  { href: `${base}/${locale}/inquiry/`, label: ui.nav.inquiry },
+  { href: `${base}/${locale}/policies/`, label: ui.nav.policies },
+];
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div>
+      <h3>{site.contact.heading}</h3>
+      <p><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></p>
+    </div>
+    <div>
+      <h3>{ui.footer.quickLinks}</h3>
+      <ul class="site-footer__links">
+        {links.map((link) => (
+          <li><a href={link.href}>{link.label}</a></li>
+        ))}
+      </ul>
+    </div>
+  </div>
+  <div class="container site-footer__bottom">
+    <p>&copy; {year} Kanmon Strait Walking Tours. {ui.footer.rights}</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-navy);
+    color: #e6edf5;
+    margin-top: 3rem;
+  }
+
+  .site-footer h3 {
+    color: #ffffff;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .site-footer a {
+    color: #cfe0f2;
+  }
+
+  .site-footer__inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+    padding: 2.5rem 1.25rem;
+  }
+
+  .site-footer__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-footer__links li {
+    margin-bottom: 0.4rem;
+  }
+
+  .site-footer__bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 1rem 1.25rem;
+    font-size: 0.85rem;
+    color: #aebfd4;
+  }
+</style>

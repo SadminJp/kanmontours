@@ -1,0 +1,44 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { siteEn } from '../../data/site.en';
+import { policiesEn } from '../../data/policies.en';
+import { uiEn } from '../../data/ui.en';
+
+const ui = uiEn;
+const policies = policiesEn;
+---
+
+<Layout
+  locale="en"
+  title={`${policies.pageTitle} — ${siteEn.meta.title}`}
+  description={siteEn.meta.description}
+  ui={ui}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>{policies.pageTitle}</h1>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      {policies.sections.map((section) => (
+        <div class="policy-section">
+          <h2>{section.heading}</h2>
+          {section.paragraphs?.map((p) => <p>{p}</p>)}
+          {section.list && (
+            <ul class="bullet-list">
+              {section.list.map((item) => <li>{item}</li>)}
+            </ul>
+          )}
+        </div>
+      ))}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .policy-section {
+    margin-bottom: 2rem;
+  }
+</style>

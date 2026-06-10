@@ -1,0 +1,115 @@
+---
+import type { Locale, UiStrings } from '../data/types';
+
+interface Props {
+  locale: Locale;
+  ui: UiStrings;
+}
+
+const { locale, ui } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const path = Astro.url.pathname;
+const otherLocale: Locale = locale === 'en' ? 'ja' : 'en';
+
+// Swap the /en/ or /ja/ segment to build the equivalent page in the other locale.
+const pathWithoutBase = base && path.startsWith(base) ? path.slice(base.length) : path;
+const switchedPath = pathWithoutBase.replace(/^\/(en|ja)(\/|$)/, `/${otherLocale}$2`);
+const langSwitchHref = `${base}${switchedPath}`;
+
+const navItems = [
+  { href: `${base}/${locale}/`, label: ui.nav.home },
+  { href: `${base}/${locale}/#about-cities`, label: ui.nav.aboutCities },
+  { href: `${base}/${locale}/#offer`, label: ui.nav.offer },
+  { href: `${base}/${locale}/#tours`, label: ui.nav.tours },
+  { href: `${base}/${locale}/#about-us`, label: ui.nav.aboutUs },
+  { href: `${base}/${locale}/booking/`, label: ui.nav.booking },
+  { href: `${base}/${locale}/inquiry/`, label: ui.nav.inquiry },
+  { href: `${base}/${locale}/policies/`, label: ui.nav.policies },
+];
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="site-header__logo" href={`${base}/${locale}/`}>Kanmon Strait Walking Tours</a>
+    <nav class="site-header__nav" aria-label="Main navigation">
+      <ul>
+        {navItems.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <a class="lang-switch" href={langSwitchHref} aria-label={ui.nav.langSwitchLabel}>
+      {ui.nav.langSwitchTo}
+    </a>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--color-border);
+    background: #ffffff;
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+    flex-wrap: wrap;
+  }
+
+  .site-header__logo {
+    font-weight: 700;
+    color: var(--color-navy);
+    font-size: 1.05rem;
+    white-space: nowrap;
+  }
+
+  .site-header__logo:hover {
+    text-decoration: none;
+  }
+
+  .site-header__nav {
+    flex: 1 1 auto;
+  }
+
+  .site-header__nav ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.1rem;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .site-header__nav a {
+    color: var(--color-text);
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .site-header__nav a:hover {
+    color: var(--color-orange);
+    text-decoration: none;
+  }
+
+  .lang-switch {
+    border: 2px solid var(--color-orange);
+    color: var(--color-orange);
+    border-radius: var(--radius);
+    padding: 0.35rem 0.85rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .lang-switch:hover {
+    background: var(--color-orange);
+    color: #ffffff;
+    text-decoration: none;
+  }
+</style>

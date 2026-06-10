@@ -1,0 +1,86 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Itinerary from '../../../components/Itinerary.astro';
+import { siteJa } from '../../../data/site.ja';
+import { toursJa } from '../../../data/tours.ja';
+import { uiJa } from '../../../data/ui.ja';
+
+export function getStaticPaths() {
+  return toursJa.map((tour) => ({ params: { slug: tour.slug }, props: { tour } }));
+}
+
+const { tour } = Astro.props;
+const ui = uiJa;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<Layout
+  locale="ja"
+  title={`${tour.title} — ${siteJa.meta.title}`}
+  description={tour.cardSummary}
+  ui={ui}
+>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">{tour.number}</span>
+      <h1>{tour.title}</h1>
+      <p class="tagline">{tour.subtitle}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <img src={`${base}${tour.heroImage}`} alt={tour.title} class="tour-hero-image" />
+
+      <h2>{ui.tourMeta.overview}</h2>
+      {tour.overview.map((p) => <p>{p}</p>)}
+
+      <h2>{ui.tourMeta.highlights}</h2>
+      <ul class="bullet-list">
+        {tour.highlights.map((h) => <li>{h}</li>)}
+      </ul>
+
+      <h2>{ui.tourMeta.itinerary}</h2>
+      <Itinerary steps={tour.itinerary} />
+
+      <table class="meta-table">
+        <tbody>
+          <tr><th>{ui.tourMeta.price}</th><td>{tour.detailPrice}</td></tr>
+          <tr><th>{ui.tourMeta.included}</th><td>{tour.included}</td></tr>
+          <tr><th>{ui.tourMeta.notIncluded}</th><td>{tour.notIncluded}</td></tr>
+          <tr><th>{ui.tourMeta.departureTime}</th><td>{tour.departureTime}</td></tr>
+          <tr><th>{ui.tourMeta.duration}</th><td>{tour.duration}</td></tr>
+          <tr>
+            <th>{ui.tourMeta.meetingPoint}</th>
+            <td>{tour.meetingPoint.map((line) => <p>{line}</p>)}</td>
+          </tr>
+          <tr><th>{ui.tourMeta.groupSize}</th><td>{tour.groupSize} &mdash; {tour.sharedNote}</td></tr>
+          <tr><th>{ui.tourMeta.operatingDates}</th><td>{tour.operatingDatesNote}</td></tr>
+          <tr><th>{ui.tourMeta.walkingDistance}</th><td>{tour.walkingDistance}</td></tr>
+        </tbody>
+      </table>
+
+      <div class="tour-cta">
+        <a class="btn btn--primary" href={`${base}/ja/booking/`}>{ui.buttons.booking}</a>
+        <a class="btn btn--secondary" href={`${base}/ja/inquiry/`}>{ui.buttons.inquiry}</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .tour-hero-image {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+  }
+
+  .tour-cta {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+</style>

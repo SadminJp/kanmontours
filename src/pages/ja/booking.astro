@@ -1,0 +1,94 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BookingCalendar from '../../components/BookingCalendar.astro';
+import { siteJa } from '../../data/site.ja';
+import { toursJa } from '../../data/tours.ja';
+import { uiJa } from '../../data/ui.ja';
+
+const ui = uiJa;
+const tours = toursJa;
+
+// TODO: replace with your real Formspree form ID (https://formspree.io/)
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/REPLACE_WITH_BOOKING_FORM_ID';
+---
+
+<Layout
+  locale="ja"
+  title={`${ui.booking.pageTitle} — ${siteJa.meta.title}`}
+  description={siteJa.meta.description}
+  ui={ui}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>{ui.booking.pageTitle}</h1>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <form action={FORMSPREE_ENDPOINT} method="POST" class="booking-form">
+        <h2>{ui.booking.step1}</h2>
+        <div class="tour-options">
+          {tours.map((tour) => (
+            <label class="tour-option">
+              <input type="checkbox" name="tours" value={`${tour.number} ${tour.title} (${tour.bookingPrice})`} />
+              <span>{tour.number} &mdash; {tour.title} &mdash; {ui.booking.perPerson} {tour.bookingPrice}</span>
+            </label>
+          ))}
+        </div>
+
+        <h2>{ui.booking.step2}</h2>
+        <p>{ui.booking.calendarHint}</p>
+        <BookingCalendar ui={ui} inputName="preferred-date" />
+
+        <h2>{ui.booking.step3}</h2>
+        <div class="form-row">
+          <label class="form-field">
+            <span>{ui.booking.fields.adults}</span>
+            <input type="number" name="adults" min="0" required />
+          </label>
+          <label class="form-field">
+            <span>{ui.booking.fields.underAge}</span>
+            <input type="number" name="minors" min="0" />
+          </label>
+        </div>
+
+        <h3>{ui.booking.fields.representativeName}</h3>
+        <div class="form-row">
+          <label class="form-field">
+            <span>{ui.booking.fields.kanji}</span>
+            <input type="text" name="representative-kanji" required />
+          </label>
+          <label class="form-field">
+            <span>{ui.booking.fields.katakana}</span>
+            <input type="text" name="representative-katakana" required />
+          </label>
+        </div>
+
+        <h3>{ui.booking.fields.contact}</h3>
+        <div class="form-row">
+          <label class="form-field">
+            <span>{ui.booking.fields.email}</span>
+            <input type="email" name="email" required />
+          </label>
+          <label class="form-field">
+            <span>{ui.booking.fields.phone}</span>
+            <input type="tel" name="phone" required />
+          </label>
+        </div>
+
+        <h2>{ui.booking.step4}</h2>
+        <label class="form-checkbox">
+          <input type="checkbox" name="terms-agreed" required />
+          <span>
+            {ui.booking.termsAgree}
+            {' '}
+            <a href="../policies/">{ui.nav.policies}</a>
+          </span>
+        </label>
+
+        <button type="submit" class="btn btn--primary">{ui.booking.submit}</button>
+      </form>
+    </div>
+  </section>
+</Layout>
