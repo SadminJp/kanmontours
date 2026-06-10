@@ -268,3 +268,72 @@ table.meta-table th {
 .inquiry-form h2 {
   margin-top: 2rem;
 }
+
+/* Section images */
+.grid--3 {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.city-section {
+  margin-bottom: 2.5rem;
+}
+
+.city-section:last-child {
+  margin-bottom: 0;
+}
+
+.city-gallery {
+  margin-top: 1.5rem;
+}
+
+.city-gallery img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+
+.with-image {
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .with-image {
+    grid-template-columns: 3fr 2fr;
+  }
+}
+
+.with-image__img img {
+  width: 100%;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+
+.with-image__img--square img {
+  aspect-ratio: 1 / 1;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.with-image__img--wide img {
+  aspect-ratio: 4 / 3;
+}
+
+.with-image__img--portrait img {
+  aspect-ratio: 723 / 855;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.access-map {
+  max-width: 640px;
+  margin: 0 auto 2.5rem;
+}
+
+.access-map img {
+  width: 100%;
+  border-radius: var(--radius);
+}
