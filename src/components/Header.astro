@@ -29,26 +29,68 @@ const navItems = [
 ];
 ---
 
-<header class="site-header">
+<header class="site-header" data-site-header>
   <div class="container site-header__inner">
-    <a class="site-header__logo" href={`${base}/${locale}/`}>Kanmon Strait Walking Tours</a>
-    <nav class="site-header__nav" aria-label="Main navigation">
+    <a class="site-header__logo" href={`${base}/${locale}/`}>
+      <span class="logo-accent">Kanmon</span> Strait Walking Tours
+    </a>
+
+    <div class="site-header__actions">
+      <a class="lang-switch" href={langSwitchHref} aria-label={ui.nav.langSwitchLabel}>
+        {ui.nav.langSwitchTo}
+      </a>
+      <button
+        type="button"
+        class="nav-toggle"
+        aria-expanded="false"
+        aria-controls="primary-nav"
+        aria-label={ui.nav.langSwitchLabel}
+        data-nav-toggle
+      >
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+      </button>
+    </div>
+
+    <nav id="primary-nav" class="site-header__nav" aria-label="Main navigation">
       <ul>
         {navItems.map((item) => (
           <li><a href={item.href}>{item.label}</a></li>
         ))}
       </ul>
     </nav>
-    <a class="lang-switch" href={langSwitchHref} aria-label={ui.nav.langSwitchLabel}>
-      {ui.nav.langSwitchTo}
-    </a>
   </div>
 </header>
+
+<script>
+  const header = document.querySelector('[data-site-header]');
+  const toggle = document.querySelector('[data-nav-toggle]');
+  const nav = document.getElementById('primary-nav');
+
+  if (header && toggle && nav) {
+    const close = () => {
+      header.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+
+    toggle.addEventListener('click', () => {
+      const open = header.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+
+    // Close the menu after following an in-page link on mobile.
+    nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', close));
+  }
+</script>
 
 <style>
   .site-header {
     border-bottom: 1px solid var(--color-border);
     background: #ffffff;
+    position: sticky;
+    top: 0;
+    z-index: 50;
   }
 
   .site-header__inner {
@@ -62,9 +104,11 @@ const navItems = [
   }
 
   .site-header__logo {
-    font-weight: 700;
-    color: var(--color-navy);
-    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--color-teal-dark);
+    font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
     white-space: nowrap;
   }
 
@@ -72,8 +116,19 @@ const navItems = [
     text-decoration: none;
   }
 
+  .site-header__logo .logo-accent {
+    color: var(--color-orange);
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
   .site-header__nav {
     flex: 1 1 auto;
+    order: 3;
   }
 
   .site-header__nav ul {
@@ -83,7 +138,7 @@ const navItems = [
     gap: 0.25rem 1.1rem;
     margin: 0;
     padding: 0;
-    justify-content: center;
+    justify-content: flex-end;
   }
 
   .site-header__nav a {
@@ -111,5 +166,83 @@ const navItems = [
     background: var(--color-orange);
     color: #ffffff;
     text-decoration: none;
+  }
+
+  /* Hamburger button — hidden on desktop */
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 44px;
+    height: 40px;
+    padding: 0 9px;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+
+  .nav-toggle__bar {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: var(--color-teal-dark);
+    border-radius: 2px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .site-header.is-open .nav-toggle__bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .site-header.is-open .nav-toggle__bar:nth-child(2) {
+    opacity: 0;
+  }
+
+  .site-header.is-open .nav-toggle__bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* Desktop: nav sits inline, no order shuffle needed beyond default */
+  @media (min-width: 860px) {
+    .site-header__nav {
+      order: 0;
+    }
+  }
+
+  /* Mobile: collapse the nav behind the hamburger */
+  @media (max-width: 859px) {
+    .nav-toggle {
+      display: flex;
+    }
+
+    .site-header__nav {
+      flex-basis: 100%;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.25s ease;
+    }
+
+    .site-header.is-open .site-header__nav {
+      max-height: 80vh;
+    }
+
+    .site-header__nav ul {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding-top: 0.5rem;
+    }
+
+    .site-header__nav li {
+      border-top: 1px solid var(--color-border);
+    }
+
+    .site-header__nav a {
+      display: block;
+      padding: 0.75rem 0.25rem;
+      font-size: 1rem;
+    }
   }
 </style>

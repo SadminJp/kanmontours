@@ -27,8 +27,13 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <div>
           {site.intro.paragraphs.map((p) => <p>{p}</p>)}
         </div>
-        <div class="with-image__img with-image__img--portrait">
-          <img src={`${base}/images/site/kyushu-map.jpg`} alt="関門海峡周辺の北九州市と下関市を示す九州・本州の地図" loading="lazy" />
+        <div class="intro-media">
+          <figure class="intro-media__scenic">
+            <img src={`${base}/images/site/kanmon-bridge-sunset.jpg`} alt="夕暮れの関門橋と関門海峡" loading="lazy" />
+          </figure>
+          <div class="with-image__img with-image__img--portrait">
+            <img src={`${base}/images/site/kyushu-map.jpg`} alt="関門海峡周辺の北九州市と下関市を示す九州・本州の地図" loading="lazy" />
+          </div>
         </div>
       </div>
     </div>
@@ -71,8 +76,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
             {site.offer.specialPoints.map((point) => <li>{point}</li>)}
           </ul>
         </div>
-        <div class="with-image__img with-image__img--wide">
-          <img src={`${base}/images/site/cafe-break.jpg`} alt="" loading="lazy" />
+        <div class="with-image__img img-stack">
+          <img src={`${base}/images/site/retro-street.jpg`} alt="ツアーで巡る趣のある裏通り" loading="lazy" />
+          <img src={`${base}/images/site/cafe-break.jpg`} alt="ツアー途中のカフェでのひと休み" loading="lazy" />
         </div>
       </div>
     </div>
@@ -95,8 +101,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <div>
           {site.about.paragraphs.map((p) => <p>{p}</p>)}
         </div>
-        <div class="with-image__img with-image__img--square">
-          <img src={`${base}/images/site/guide-orange-cap.jpg`} alt="" loading="lazy" />
+        <div class="with-image__img img-duo">
+          <img src={`${base}/images/site/guide-orange-folder.jpg`} alt="オレンジ色の小物を持つ関門ツアーのガイド" loading="lazy" />
+          <img src={`${base}/images/site/guide-orange-cap.jpg`} alt="関門ツアーのガイドが身につけるオレンジ色の帽子" loading="lazy" />
         </div>
       </div>
     </div>

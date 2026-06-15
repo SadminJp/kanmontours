@@ -1,12 +1,19 @@
 :root {
+  /* Brand palette (sampled from the Kanmon Tours source documents) */
   --color-orange: #ff6600;
-  --color-navy: #1f497d;
-  --color-blue: #4f81bd;
-  --color-blue-dark: #365f91;
+  --color-orange-dark: #e65c00;
+  --color-green: #00b050;
+  --color-green-dark: #008a40;
   --color-teal: #4bacc6;
+  --color-teal-dark: #1f7e96;
+
+  /* Legacy aliases kept so existing references resolve to brand colours */
+  --color-navy: #1f7e96;
+  --color-blue: #4bacc6;
+  --color-blue-dark: #008a40;
 
   --color-bg: #ffffff;
-  --color-bg-alt: #f5f7fa;
+  --color-bg-alt: #f3f8f6;
   --color-text: #2b2b2b;
   --color-text-muted: #5a5a5a;
   --color-border: #e0e4e8;
@@ -53,7 +60,7 @@ h1,
 h2,
 h3,
 h4 {
-  color: var(--color-navy);
+  color: var(--color-teal-dark);
   line-height: 1.35;
   font-weight: 700;
 }
@@ -62,12 +69,16 @@ h1 {
   font-size: clamp(1.9rem, 4vw, 2.75rem);
 }
 
+/* Section headings use the brand orange, sub-headings the brand green
+   (matching the Kanmon Tours source documents). */
 h2 {
   font-size: clamp(1.5rem, 3vw, 2.1rem);
+  color: var(--color-orange);
 }
 
 h3 {
   font-size: clamp(1.2rem, 2.4vw, 1.5rem);
+  color: var(--color-green-dark);
 }
 
 .container {
@@ -112,19 +123,20 @@ h3 {
 }
 
 .btn--primary:hover {
-  background: #e65c00;
+  background: var(--color-orange-dark);
   text-decoration: none;
 }
 
 .btn--secondary {
   background: transparent;
-  color: var(--color-blue-dark);
-  border-color: var(--color-blue-dark);
+  color: var(--color-green-dark);
+  border-color: var(--color-green);
 }
 
 .btn--secondary:hover {
-  background: var(--color-blue-dark);
+  background: var(--color-green);
   color: #ffffff;
+  border-color: var(--color-green);
   text-decoration: none;
 }
 
@@ -178,8 +190,8 @@ table.meta-table th {
 }
 
 .hero {
-  background-color: var(--color-navy);
-  background-image: linear-gradient(180deg, rgba(31, 73, 125, 0.85) 0%, rgba(54, 95, 145, 0.85) 100%),
+  background-color: var(--color-teal-dark);
+  background-image: linear-gradient(180deg, rgba(31, 126, 150, 0.82) 0%, rgba(75, 172, 198, 0.82) 100%),
     var(--hero-bg-image, none);
   background-size: cover;
   background-position: center;
@@ -296,7 +308,7 @@ table.meta-table th {
 .with-image {
   display: grid;
   gap: 2rem;
-  align-items: center;
+  align-items: start;
   grid-template-columns: 1fr;
 }
 
@@ -328,6 +340,55 @@ table.meta-table th {
   margin: 0 auto;
 }
 
+/* Stacked images within a column (e.g. What We Offer) */
+.img-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.img-stack img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+
+/* Two square images side by side (e.g. About Us "we wear orange") */
+.img-duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.img-duo img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+
+/* Intro media column: scenic photo above the regional map */
+.intro-media {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.intro-media__scenic {
+  margin: 0;
+  width: 100%;
+  max-width: 360px;
+}
+
+.intro-media__scenic img {
+  width: 100%;
+  aspect-ratio: 5 / 4;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+
 .access-map {
   max-width: 640px;
   margin: 0 auto 2.5rem;
@@ -336,4 +397,30 @@ table.meta-table th {
 .access-map img {
   width: 100%;
   border-radius: var(--radius);
+}
+
+/* Access section: teal label pills + green "From …" route labels (matches source docs) */
+#access .grid--2 h3 {
+  display: inline-block;
+  background: var(--color-teal);
+  color: #ffffff;
+  font-size: 1rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: var(--radius);
+  margin-bottom: 0.75rem;
+}
+
+#access .grid--2 strong {
+  color: var(--color-green-dark);
+}
+
+/* Mobile spacing refinements */
+@media (max-width: 600px) {
+  .section {
+    padding: 2.25rem 0;
+  }
+
+  .hero {
+    padding: 2.75rem 0;
+  }
 }
