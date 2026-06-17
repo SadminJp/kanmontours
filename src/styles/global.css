@@ -7,21 +7,33 @@
   --color-teal: #4bacc6;
   --color-teal-dark: #1f7e96;
 
+  /* Heritage accent — a muted antique gold used sparingly for rules,
+     eyebrows, and fine detailing (the hallmark of a classic luxury feel). */
+  --color-gold: #b08433;
+  --color-gold-soft: #c9a85f;
+
+  /* Deep ink-teal used for headings — calmer and more formal than the brand
+     orange, which is now reserved for the primary call-to-action. */
+  --color-ink: #173b46;
+
   /* Legacy aliases kept so existing references resolve to brand colours */
-  --color-navy: #1f7e96;
+  --color-navy: #173b46;
   --color-blue: #4bacc6;
-  --color-blue-dark: #008a40;
+  --color-blue-dark: #1f7e96;
 
   --color-bg: #ffffff;
-  --color-bg-alt: #f3f8f6;
-  --color-text: #2b2b2b;
-  --color-text-muted: #5a5a5a;
-  --color-border: #e0e4e8;
+  --color-bg-alt: #f6f3ec;
+  --color-text: #2c2925;
+  --color-text-muted: #6a655d;
+  --color-border: #e5e0d6;
 
-  --font-base: 'Noto Sans', 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', system-ui, sans-serif;
+  /* Editorial serif display + readable serif body (heritage typography).
+     Japanese falls through to Noto Serif JP for both faces. */
+  --font-display: 'Cormorant Garamond', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', Georgia, serif;
+  --font-base: 'EB Garamond', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', Georgia, serif;
 
-  --max-width: 1100px;
-  --radius: 8px;
+  --max-width: 1140px;
+  --radius: 2px;
 }
 
 * {
@@ -38,8 +50,10 @@ body {
   font-family: var(--font-base);
   color: var(--color-text);
   background: var(--color-bg);
-  line-height: 1.7;
+  line-height: 1.75;
+  font-size: 1.075rem;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 img {
@@ -48,37 +62,60 @@ img {
 }
 
 a {
-  color: var(--color-blue-dark);
+  color: var(--color-ink);
   text-decoration: none;
 }
 
 a:hover {
-  text-decoration: underline;
+  color: var(--color-gold);
+  text-decoration: none;
 }
 
 h1,
 h2,
 h3,
 h4 {
-  color: var(--color-teal-dark);
-  line-height: 1.35;
-  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--color-ink);
+  line-height: 1.2;
+  font-weight: 600;
 }
 
 h1 {
-  font-size: clamp(1.9rem, 4vw, 2.75rem);
+  font-size: clamp(2.4rem, 5.5vw, 4rem);
+  font-weight: 600;
+  letter-spacing: 0.005em;
 }
 
-/* Section headings use the brand orange, sub-headings the brand green
-   (matching the Kanmon Tours source documents). */
+/* Section headings sit in deep ink with a short antique-gold rule beneath —
+   a restrained, editorial treatment in place of the louder brand orange. */
 h2 {
-  font-size: clamp(1.5rem, 3vw, 2.1rem);
-  color: var(--color-orange);
+  font-size: clamp(2rem, 4vw, 2.9rem);
+  color: var(--color-ink);
+  margin-bottom: 1.25rem;
+}
+
+.section > .container > h2:first-child,
+.section h2.section-heading {
+  position: relative;
+  padding-bottom: 0.85rem;
+}
+
+.section > .container > h2:first-child::after,
+.section h2.section-heading::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 56px;
+  height: 2px;
+  background: var(--color-gold);
 }
 
 h3 {
-  font-size: clamp(1.2rem, 2.4vw, 1.5rem);
-  color: var(--color-green-dark);
+  font-size: clamp(1.4rem, 2.6vw, 1.85rem);
+  color: var(--color-teal-dark);
+  font-weight: 600;
 }
 
 .container {
@@ -88,7 +125,7 @@ h3 {
 }
 
 .section {
-  padding: 3rem 0;
+  padding: 5rem 0;
 }
 
 .section--alt {
@@ -97,46 +134,68 @@ h3 {
 
 .eyebrow {
   display: inline-block;
-  color: var(--color-orange);
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-family: var(--font-base);
+  color: var(--color-gold);
+  font-weight: 600;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
+  font-size: 0.78rem;
+  margin-bottom: 0.9rem;
 }
 
 .btn {
   display: inline-block;
-  padding: 0.7rem 1.6rem;
+  padding: 0.85rem 2rem;
   border-radius: var(--radius);
-  font-weight: 700;
+  font-family: var(--font-base);
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   text-align: center;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   text-decoration: none;
 }
 
 .btn--primary {
   background: var(--color-orange);
   color: #ffffff;
+  border-color: var(--color-orange);
 }
 
 .btn--primary:hover {
   background: var(--color-orange-dark);
+  border-color: var(--color-orange-dark);
+  color: #ffffff;
   text-decoration: none;
 }
 
 .btn--secondary {
   background: transparent;
-  color: var(--color-green-dark);
-  border-color: var(--color-green);
+  color: var(--color-ink);
+  border-color: var(--color-ink);
 }
 
 .btn--secondary:hover {
-  background: var(--color-green);
+  background: var(--color-ink);
   color: #ffffff;
-  border-color: var(--color-green);
+  border-color: var(--color-ink);
+  text-decoration: none;
+}
+
+/* Outline-on-dark variant for use over imagery (e.g. the hero). */
+.btn--ghost {
+  background: transparent;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.btn--ghost:hover {
+  background: #ffffff;
+  color: var(--color-ink);
+  border-color: #ffffff;
   text-decoration: none;
 }
 
@@ -145,7 +204,13 @@ h3 {
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(31, 73, 125, 0.06);
+  box-shadow: 0 1px 2px rgba(23, 59, 70, 0.04);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.card:hover {
+  box-shadow: 0 14px 34px rgba(23, 59, 70, 0.12);
+  transform: translateY(-3px);
 }
 
 .grid {
@@ -190,15 +255,24 @@ table.meta-table th {
 }
 
 .hero {
-  background-color: var(--color-teal-dark);
-  background-image: linear-gradient(180deg, rgba(31, 126, 150, 0.82) 0%, rgba(75, 172, 198, 0.82) 100%),
+  background-color: var(--color-ink);
+  background-image: linear-gradient(
+      180deg,
+      rgba(15, 33, 40, 0.36) 0%,
+      rgba(15, 33, 40, 0.32) 45%,
+      rgba(15, 33, 40, 0.66) 100%
+    ),
     var(--hero-bg-image, none);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   color: #ffffff;
-  padding: 4rem 0;
+  padding: 8rem 0 7rem;
   text-align: center;
+}
+
+.hero .container {
+  max-width: 880px;
 }
 
 .hero h1,
@@ -206,10 +280,40 @@ table.meta-table th {
   color: #ffffff;
 }
 
+.hero .eyebrow {
+  color: var(--color-gold-soft);
+}
+
+.hero h1 {
+  margin: 0 0 1rem;
+  text-shadow: 0 1px 24px rgba(0, 0, 0, 0.25);
+}
+
 .hero .tagline {
-  font-size: 1.15rem;
-  color: #dbe6f4;
-  margin-top: 0.5rem;
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  font-style: italic;
+  color: #f1ece1;
+  margin-top: 0.25rem;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Thin gold rule above the eyebrow as a heritage flourish. */
+.hero__rule {
+  width: 64px;
+  height: 1px;
+  background: var(--color-gold-soft);
+  margin: 0 auto 1.5rem;
+  opacity: 0.9;
+}
+
+.hero__cta {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2.25rem;
 }
 
 /* Forms */
@@ -303,6 +407,32 @@ table.meta-table th {
   aspect-ratio: 4 / 3;
   border-radius: var(--radius);
   object-fit: cover;
+}
+
+/* Photography micro-craft: clip images and let them lift gently on hover. */
+.city-gallery,
+.with-image__img,
+.img-stack,
+.img-duo,
+.intro-media__scenic {
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+
+.city-gallery img,
+.with-image__img img,
+.img-stack img,
+.img-duo img,
+.intro-media__scenic img {
+  transition: transform 0.6s cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.city-gallery img:hover,
+.with-image__img img:hover,
+.img-stack img:hover,
+.img-duo img:hover,
+.intro-media__scenic img:hover {
+  transform: scale(1.04);
 }
 
 .with-image {
@@ -399,28 +529,28 @@ table.meta-table th {
   border-radius: var(--radius);
 }
 
-/* Access section: teal label pills + green "From …" route labels (matches source docs) */
+/* Access section: refined ink labels with a gold underline accent. */
 #access .grid--2 h3 {
   display: inline-block;
-  background: var(--color-teal);
-  color: #ffffff;
-  font-size: 1rem;
-  padding: 0.3rem 0.9rem;
-  border-radius: var(--radius);
-  margin-bottom: 0.75rem;
+  color: var(--color-ink);
+  font-size: 1.45rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid var(--color-gold);
+  margin-bottom: 1rem;
 }
 
 #access .grid--2 strong {
-  color: var(--color-green-dark);
+  color: var(--color-teal-dark);
+  font-weight: 600;
 }
 
 /* Mobile spacing refinements */
 @media (max-width: 600px) {
   .section {
-    padding: 2.25rem 0;
+    padding: 3.25rem 0;
   }
 
   .hero {
-    padding: 2.75rem 0;
+    padding: 5rem 0 4rem;
   }
 }

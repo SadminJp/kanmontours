@@ -14,9 +14,14 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 <Layout locale="en" title={site.meta.title} description={site.meta.description} ui={ui}>
   <section class="hero" style={`--hero-bg-image: url(${base}/images/hero.jpg)`}>
     <div class="container">
+      <div class="hero__rule"></div>
       <span class="eyebrow">{site.hero.eyebrow}</span>
       <h1>{site.hero.title}</h1>
       <p class="tagline">{site.hero.tagline}</p>
+      <div class="hero__cta">
+        <a class="btn btn--primary" href={`${base}/en/booking/`}>{ui.nav.booking}</a>
+        <a class="btn btn--ghost" href={`${base}/en/#tours`}>{ui.nav.tours}</a>
+      </div>
     </div>
   </section>
 
