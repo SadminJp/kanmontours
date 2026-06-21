@@ -17,20 +17,11 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       <div class="hero__rule"></div>
       <span class="eyebrow">{site.hero.eyebrow}</span>
       <h1>Kanmon Strait Walking Tours</h1>
+      <p class="hero__location">{site.hero.title}</p>
       <div class="hero__cta">
         <a class="btn btn--primary" href={`${base}/en/booking/`}>{ui.nav.booking}</a>
         <a class="btn btn--ghost" href={`${base}/en/#tours`}>{ui.nav.tours}</a>
       </div>
-    </div>
-  </section>
-
-  <section class="city-banner section">
-    <div class="container">
-      <h2>{site.hero.title}</h2>
-      <p class="city-banner__tagline">{site.hero.tagline}</p>
-      <figure class="city-banner__image">
-        <img src={`${base}/images/hero.jpg`} alt="Aerial view of the Kanmon Strait connecting Kitakyushu and Shimonoseki" loading="lazy" />
-      </figure>
     </div>
   </section>
 
@@ -51,6 +42,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <section id="about-cities" class="section section--alt">
     <div class="container">
       <h2>{site.cities.heading}</h2>
+
+      <figure class="city-banner__image">
+        <img src={`${base}/images/hero.jpg`} alt="Aerial view of the Kanmon Strait connecting Kitakyushu and Shimonoseki" loading="lazy" />
+      </figure>
 
       <div class="city-section">
         <h3>{site.cities.kitakyushu.title}</h3>

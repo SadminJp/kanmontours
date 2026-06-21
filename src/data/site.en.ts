@@ -12,7 +12,7 @@ export const siteEn: SiteContent = {
     tagline: 'The Cities of the Strait — Where two seas and two shores meet',
   },
   intro: {
-    heading: 'The Cities of the Strait',
+    heading: 'The Cities of the Strait — Where two seas and two shores meet',
     paragraphs: [
       'Facing each other across the narrow Kanmon Strait, Kitakyushu and Shimonoseki are neighboring cities where history, culture, and daily life blend together.',
       'Linked by bridge, tunnel, and railway, the two cities have long served as a gateway between Kyushu and Honshu, Japan’s main island, and as a stage for historical events that shaped Japan.',
