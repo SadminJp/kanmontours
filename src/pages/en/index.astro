@@ -12,22 +12,27 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <Layout locale="en" title={site.meta.title} description={site.meta.description} ui={ui}>
-  <section class="hero" style={`--hero-bg-image: url(${base}/images/site/kanmon-bridge-sunset.jpg)`}>
+  <section class="hero">
     <div class="container">
-      <div class="hero__rule"></div>
-      <span class="eyebrow">{site.hero.eyebrow}</span>
-      <h1>Kanmon Strait Walking Tours</h1>
-      <p class="hero__location">{site.hero.title}</p>
-      <div class="hero__cta">
-        <a class="btn btn--primary" href={`${base}/en/booking/`}>{ui.nav.booking}</a>
-        <a class="btn btn--ghost" href={`${base}/en/#tours`}>{ui.nav.tours}</a>
-      </div>
+      <h1>{site.hero.eyebrow}</h1>
     </div>
   </section>
 
   <section class="section">
     <div class="container">
-      <h2>{site.intro.heading}</h2>
+      <h2 class="location-heading">{site.hero.title}</h2>
+      <figure class="city-banner__image">
+        <img src={`${base}/images/hero.jpg`} alt="Aerial view of the Kanmon Strait connecting Kitakyushu and Shimonoseki" loading="lazy" />
+      </figure>
+      <figure class="city-banner__image">
+        <img src={`${base}/images/site/kanmon-bridge-sunset.jpg`} alt="Sunset view of the Kanmon Bridge connecting Kitakyushu and Shimonoseki" loading="lazy" />
+      </figure>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="location-heading">{site.intro.heading}</h2>
       <div class="with-image with-image--flip">
         <div class="with-image__img with-image__img--portrait">
           <img src={`${base}/images/site/kyushu-map.jpg`} alt="Map of Kyushu and Honshu showing Kitakyushu and Shimonoseki at the Kanmon Strait" loading="lazy" />
@@ -42,10 +47,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <section id="about-cities" class="section section--alt">
     <div class="container">
       <h2>{site.cities.heading}</h2>
-
-      <figure class="city-banner__image">
-        <img src={`${base}/images/hero.jpg`} alt="Aerial view of the Kanmon Strait connecting Kitakyushu and Shimonoseki" loading="lazy" />
-      </figure>
 
       <div class="city-section">
         <h3>{site.cities.kitakyushu.title}</h3>
@@ -73,7 +74,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <div class="container">
       <h2>{site.offer.heading}</h2>
       {site.offer.paragraphs.map((p) => <p>{p}</p>)}
-      <div class="img-duo" style="margin: 2rem 0">
+      <div class="grid grid--2 city-gallery" style="margin: 2rem 0">
         <img src={`${base}/images/site/retro-street.jpg`} alt="A quiet retro backstreet explored on a walking tour" loading="lazy" />
         <img src={`${base}/images/site/cafe-break.jpg`} alt="A relaxing cafe break during a tour" loading="lazy" />
       </div>
@@ -98,7 +99,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <div class="container">
       <h2>{site.about.heading}</h2>
       {site.about.paragraphs.map((p) => <p>{p}</p>)}
-      <div class="grid grid--3 city-gallery">
+      <div class="about-gallery">
         <img src={`${base}/images/site/guide-orange-jacket.jpg`} alt="A Kanmon Tours guide in an orange jacket" loading="lazy" />
         <img src={`${base}/images/site/guide-orange-folder.jpg`} alt="A Kanmon Tours guide holding something orange" loading="lazy" />
         <img src={`${base}/images/site/guide-orange-cap.jpg`} alt="An orange cap worn by Kanmon Tours guides" loading="lazy" />

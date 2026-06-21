@@ -22,7 +22,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 >
   <section class="hero">
     <div class="container">
-      <span class="eyebrow">{tour.number}</span>
+      <span class="eyebrow tour-number">{tour.number}</span>
       <h1>{tour.title}</h1>
       <p class="tagline">{tour.subtitle}</p>
     </div>
@@ -71,7 +71,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 <style>
   .tour-hero-image {
     width: 100%;
-    max-height: 420px;
+    max-height: 600px;
     object-fit: cover;
     border-radius: var(--radius);
     margin-bottom: 1.5rem;

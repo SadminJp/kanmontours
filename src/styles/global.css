@@ -29,8 +29,8 @@
 
   /* Editorial serif display + readable serif body (heritage typography).
      Japanese falls through to Noto Serif JP for both faces. */
-  --font-display: 'Cormorant Garamond', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', Georgia, serif;
-  --font-base: 'EB Garamond', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', Georgia, serif;
+  --font-display: 'Arial', 'Helvetica Neue', Helvetica, 'Noto Sans JP', sans-serif;
+  --font-base: 'Courier Prime', 'Courier New', 'Noto Serif JP', Courier, monospace;
 
   --max-width: 1140px;
   --radius: 2px;
@@ -87,34 +87,21 @@ h1 {
   letter-spacing: 0.005em;
 }
 
-/* Section headings sit in deep ink with a short antique-gold rule beneath —
-   a restrained, editorial treatment in place of the louder brand orange. */
 h2 {
   font-size: clamp(2rem, 4vw, 2.9rem);
-  color: var(--color-ink);
+  color: var(--color-orange);
   margin-bottom: 1.25rem;
 }
 
-.section > .container > h2:first-child,
-.section h2.section-heading {
-  position: relative;
-  padding-bottom: 0.85rem;
+h2.location-heading {
+  color: var(--color-green);
+  text-align: center;
 }
 
-.section > .container > h2:first-child::after,
-.section h2.section-heading::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 56px;
-  height: 2px;
-  background: var(--color-gold);
-}
 
 h3 {
   font-size: clamp(1.4rem, 2.6vw, 1.85rem);
-  color: var(--color-teal-dark);
+  color: var(--color-green);
   font-weight: 600;
 }
 
@@ -125,7 +112,7 @@ h3 {
 }
 
 .section {
-  padding: 5rem 0;
+  padding: 2rem 0;
 }
 
 .section--alt {
@@ -255,19 +242,9 @@ table.meta-table th {
 }
 
 .hero {
-  background-color: var(--color-ink);
-  background-image: linear-gradient(
-      180deg,
-      rgba(15, 33, 40, 0.36) 0%,
-      rgba(15, 33, 40, 0.32) 45%,
-      rgba(15, 33, 40, 0.66) 100%
-    ),
-    var(--hero-bg-image, none);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-color: var(--color-teal);
   color: #ffffff;
-  padding: 8rem 0 7rem;
+  padding: 4rem 0 3.5rem;
   text-align: center;
 }
 
@@ -282,15 +259,22 @@ table.meta-table th {
 
 .hero .eyebrow {
   color: var(--color-gold-soft);
+  font-family: var(--font-display);
+}
+
+.hero .eyebrow.tour-number {
+  color: #ffffff;
 }
 
 .hero h1 {
   margin: 0 0 0.5rem;
   text-shadow: 0 1px 24px rgba(0, 0, 0, 0.25);
+  font-size: clamp(1.8rem, 4.6vw, 3.4rem);
+  white-space: nowrap;
 }
 
 .hero__location {
-  font-family: var(--font-base);
+  font-family: var(--font-display);
   font-size: clamp(1rem, 1.8vw, 1.25rem);
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -512,6 +496,38 @@ table.meta-table th {
   object-fit: cover;
 }
 
+/* About Us guide photos: smaller, left-aligned, wrap on narrow screens */
+.about-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.about-gallery img {
+  width: 200px;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius);
+}
+
+/* Slim location strip between hero and intro */
+.location-banner {
+  background: var(--color-ink);
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.location-banner__text {
+  font-family: var(--font-display);
+  font-size: clamp(0.85rem, 1.5vw, 1.05rem);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin: 0;
+}
+
 /* Location banner: title + tagline above a scenic photo */
 .city-banner__tagline {
   font-size: clamp(1rem, 1.8vw, 1.2rem);
@@ -552,7 +568,7 @@ table.meta-table th {
 /* Access section: refined ink labels with a gold underline accent. */
 #access .grid--2 h3 {
   display: inline-block;
-  color: var(--color-ink);
+  color: var(--color-orange);
   font-size: 1.45rem;
   padding-bottom: 0.4rem;
   border-bottom: 2px solid var(--color-gold);
@@ -560,7 +576,7 @@ table.meta-table th {
 }
 
 #access .grid--2 strong {
-  color: var(--color-teal-dark);
+  color: var(--color-green);
   font-weight: 600;
 }
 

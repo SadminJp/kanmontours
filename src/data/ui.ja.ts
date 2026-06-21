@@ -11,7 +11,7 @@ export const uiJa: UiStrings = {
     inquiry: 'お問い合わせ',
     policies: '利用規約',
     langSwitchLabel: '言語',
-    langSwitchTo: 'English',
+    langSwitchTo: 'English Tours',
   },
   buttons: {
     readMore: '詳しく見る',

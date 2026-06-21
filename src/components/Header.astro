@@ -18,13 +18,10 @@ const switchedPath = pathWithoutBase.replace(/^\/(en|ja)(\/|$)/, `/${otherLocale
 const langSwitchHref = `${base}${switchedPath}`;
 
 const navItems = [
-  { href: `${base}/${locale}/`, label: ui.nav.home },
   { href: `${base}/${locale}/#about-cities`, label: ui.nav.aboutCities },
   { href: `${base}/${locale}/#offer`, label: ui.nav.offer },
   { href: `${base}/${locale}/#tours`, label: ui.nav.tours },
   { href: `${base}/${locale}/#about-us`, label: ui.nav.aboutUs },
-  { href: `${base}/${locale}/booking/`, label: ui.nav.booking },
-  { href: `${base}/${locale}/inquiry/`, label: ui.nav.inquiry },
   { href: `${base}/${locale}/policies/`, label: ui.nav.policies },
 ];
 ---
@@ -106,14 +103,15 @@ const navItems = [
     list-style: none;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem 0.75rem;
+    gap: 0.25rem 2rem;
     margin: 0;
     padding: 0;
   }
 
   .site-header__nav a {
-    color: var(--color-ink);
-    font-size: 0.72rem;
+    color: var(--color-orange);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 0.9rem;
     font-weight: 600;
     letter-spacing: 0.09em;
     text-transform: uppercase;
@@ -127,8 +125,9 @@ const navItems = [
   .lang-switch {
     margin-left: auto;
     flex-shrink: 0;
-    border: 1px solid var(--color-ink);
-    color: var(--color-ink);
+    border: 1px solid var(--color-orange);
+    background: var(--color-orange);
+    color: #ffffff;
     border-radius: var(--radius);
     padding: 0.4rem 0.9rem;
     font-weight: 600;
@@ -139,7 +138,8 @@ const navItems = [
   }
 
   .lang-switch:hover {
-    background: var(--color-ink);
+    background: var(--color-orange-dark);
+    border-color: var(--color-orange-dark);
     color: #ffffff;
     text-decoration: none;
   }

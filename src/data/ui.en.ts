@@ -11,7 +11,7 @@ export const uiEn: UiStrings = {
     inquiry: 'Inquiry',
     policies: 'Terms & Conditions',
     langSwitchLabel: 'Language',
-    langSwitchTo: '日本語',
+    langSwitchTo: '日本語ツアー',
   },
   buttons: {
     readMore: 'Read More',
