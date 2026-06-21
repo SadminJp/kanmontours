@@ -12,7 +12,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <Layout locale="ja" title={site.meta.title} description={site.meta.description} ui={ui}>
-  <section class="hero" style={`--hero-bg-image: url(${base}/images/hero.jpg)`}>
+  <section class="hero" style={`--hero-bg-image: url(${base}/images/site/kanmon-bridge-sunset.jpg)`}>
     <div class="container">
       <div class="hero__rule"></div>
       <span class="eyebrow">{site.hero.eyebrow}</span>
@@ -29,7 +29,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       <h2>{site.hero.title}</h2>
       <p class="city-banner__tagline">{site.hero.tagline}</p>
       <figure class="city-banner__image">
-        <img src={`${base}/images/site/kanmon-bridge-sunset.jpg`} alt="夕暮れの関門橋と関門海峡" loading="lazy" />
+        <img src={`${base}/images/hero.jpg`} alt="関門海峡の空撮（北九州市・下関市）" loading="lazy" />
       </figure>
     </div>
   </section>
