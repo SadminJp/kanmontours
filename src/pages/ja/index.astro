@@ -16,13 +16,22 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <div class="container">
       <div class="hero__rule"></div>
       <span class="eyebrow">{site.hero.eyebrow}</span>
-      <h1>{site.hero.title}</h1>
-      <p class="tagline">{site.hero.tagline}</p>
+      <h1>関門海峡ウォーキングツアー</h1>
       <div class="hero__cta">
         <a class="btn btn--primary" href={`${base}/ja/booking/`}>{ui.nav.booking}</a>
         <a class="btn btn--ghost" href={`${base}/ja/#tours`}>{ui.nav.tours}</a>
       </div>
     </div>
+  </section>
+
+  <section class="city-banner">
+    <div class="container">
+      <h2>{site.hero.title}</h2>
+      <p class="city-banner__tagline">{site.hero.tagline}</p>
+    </div>
+    <figure class="city-banner__image">
+      <img src={`${base}/images/site/kanmon-bridge-sunset.jpg`} alt="夕暮れの関門橋と関門海峡" loading="lazy" />
+    </figure>
   </section>
 
   <section class="section">
@@ -32,13 +41,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <div>
           {site.intro.paragraphs.map((p) => <p>{p}</p>)}
         </div>
-        <div class="intro-media">
-          <figure class="intro-media__scenic">
-            <img src={`${base}/images/site/kanmon-bridge-sunset.jpg`} alt="夕暮れの関門橋と関門海峡" loading="lazy" />
-          </figure>
-          <div class="with-image__img with-image__img--portrait">
-            <img src={`${base}/images/site/kyushu-map.jpg`} alt="関門海峡周辺の北九州市と下関市を示す九州・本州の地図" loading="lazy" />
-          </div>
+        <div class="with-image__img with-image__img--portrait">
+          <img src={`${base}/images/site/kyushu-map.jpg`} alt="関門海峡周辺の北九州市と下関市を示す九州・本州の地図" loading="lazy" />
         </div>
       </div>
     </div>
