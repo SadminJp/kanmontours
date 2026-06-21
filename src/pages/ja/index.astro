@@ -28,12 +28,12 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <section class="section">
     <div class="container">
       <h2>{site.intro.heading}</h2>
-      <div class="with-image">
-        <div>
-          {site.intro.paragraphs.map((p) => <p>{p}</p>)}
-        </div>
+      <div class="with-image with-image--flip">
         <div class="with-image__img with-image__img--portrait">
           <img src={`${base}/images/site/kyushu-map.jpg`} alt="関門海峡周辺の北九州市と下関市を示す九州・本州の地図" loading="lazy" />
+        </div>
+        <div>
+          {site.intro.paragraphs.map((p) => <p>{p}</p>)}
         </div>
       </div>
     </div>
@@ -72,19 +72,15 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <section id="offer" class="section">
     <div class="container">
       <h2>{site.offer.heading}</h2>
-      <div class="with-image">
-        <div>
-          {site.offer.paragraphs.map((p) => <p>{p}</p>)}
-          <h3>{site.offer.specialHeading}</h3>
-          <ul class="bullet-list">
-            {site.offer.specialPoints.map((point) => <li>{point}</li>)}
-          </ul>
-        </div>
-        <div class="with-image__img img-stack">
-          <img src={`${base}/images/site/retro-street.jpg`} alt="ツアーで巡る趣のある裏通り" loading="lazy" />
-          <img src={`${base}/images/site/cafe-break.jpg`} alt="ツアー途中のカフェでのひと休み" loading="lazy" />
-        </div>
+      {site.offer.paragraphs.map((p) => <p>{p}</p>)}
+      <div class="img-duo" style="margin: 2rem 0">
+        <img src={`${base}/images/site/retro-street.jpg`} alt="ツアーで巡る趣のある裏通り" loading="lazy" />
+        <img src={`${base}/images/site/cafe-break.jpg`} alt="ツアー途中のカフェでのひと休み" loading="lazy" />
       </div>
+      <h3>{site.offer.specialHeading}</h3>
+      <ul class="bullet-list">
+        {site.offer.specialPoints.map((point) => <li>{point}</li>)}
+      </ul>
     </div>
   </section>
 
@@ -101,14 +97,11 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <section id="about-us" class="section">
     <div class="container">
       <h2>{site.about.heading}</h2>
-      <div class="with-image">
-        <div>
-          {site.about.paragraphs.map((p) => <p>{p}</p>)}
-        </div>
-        <div class="with-image__img img-duo">
-          <img src={`${base}/images/site/guide-orange-folder.jpg`} alt="オレンジ色の小物を持つ関門ツアーのガイド" loading="lazy" />
-          <img src={`${base}/images/site/guide-orange-cap.jpg`} alt="関門ツアーのガイドが身につけるオレンジ色の帽子" loading="lazy" />
-        </div>
+      {site.about.paragraphs.map((p) => <p>{p}</p>)}
+      <div class="grid grid--3 city-gallery">
+        <img src={`${base}/images/site/guide-orange-jacket.jpg`} alt="オレンジのジャケットを着た関門ツアーのガイド" loading="lazy" />
+        <img src={`${base}/images/site/guide-orange-folder.jpg`} alt="オレンジ色の小物を持つ関門ツアーのガイド" loading="lazy" />
+        <img src={`${base}/images/site/guide-orange-cap.jpg`} alt="関門ツアーのガイドが身につけるオレンジ色の帽子" loading="lazy" />
       </div>
     </div>
   </section>

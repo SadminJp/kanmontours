@@ -20,7 +20,7 @@ export const siteEn: SiteContent = {
     ],
   },
   cities: {
-    heading: 'About the Cities',
+    heading: 'About The Cities',
     kitakyushu: {
       title: 'Kitakyushu',
       paragraphs: [
