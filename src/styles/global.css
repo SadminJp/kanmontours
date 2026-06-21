@@ -498,26 +498,12 @@ table.meta-table th {
   object-fit: cover;
 }
 
-/* Location banner: centered title + tagline above a full-width scenic photo */
-.city-banner {
-  padding: 4rem 0;
-  text-align: center;
-}
-
-.city-banner h2 {
-  font-size: clamp(1.4rem, 3vw, 2.2rem);
-  color: var(--color-ink);
-  margin-bottom: 0.65rem;
-}
-
+/* Location banner: title + tagline above a scenic photo */
 .city-banner__tagline {
   font-size: clamp(1rem, 1.8vw, 1.2rem);
   font-style: italic;
   color: var(--color-text-muted);
   margin-bottom: 2.5rem;
-  max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .city-banner__image {
