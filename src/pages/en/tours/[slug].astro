@@ -30,15 +30,33 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
   <section class="section">
     <div class="container">
-      <img src={`${base}${tour.heroImage}`} alt={tour.title} class="tour-hero-image" />
+      {!tour.overviewImages?.length && (
+        <img src={`${base}${tour.heroImage}`} alt={tour.title} class="tour-hero-image" />
+      )}
 
       <h2>{ui.tourMeta.overview}</h2>
       {tour.overview.map((p) => <p>{p}</p>)}
+
+      {tour.overviewImages?.length ? (
+        <div class="grid grid--3 city-gallery tour-gallery">
+          {tour.overviewImages.map((img) => (
+            <img src={`${base}${img.src}`} alt={img.alt} loading="lazy" />
+          ))}
+        </div>
+      ) : null}
 
       <h2>{ui.tourMeta.highlights}</h2>
       <ul class="bullet-list">
         {tour.highlights.map((h) => <li>{h}</li>)}
       </ul>
+
+      {tour.highlightImages?.length ? (
+        <div class="grid grid--3 city-gallery tour-gallery">
+          {tour.highlightImages.map((img) => (
+            <img src={`${base}${img.src}`} alt={img.alt} loading="lazy" />
+          ))}
+        </div>
+      ) : null}
 
       <h2>{ui.tourMeta.itinerary}</h2>
       <Itinerary steps={tour.itinerary} />
@@ -75,6 +93,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     object-fit: cover;
     border-radius: var(--radius);
     margin-bottom: 1.5rem;
+  }
+
+  .tour-gallery {
+    margin: 1.5rem 0 2.5rem;
   }
 
   .tour-cta {
