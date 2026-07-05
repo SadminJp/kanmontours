@@ -150,7 +150,7 @@ export const toursJa: TourContent[] = [
     number: 'Tour-4',
     title: '歴史の舞台　城下町長府',
     subtitle: '大きく華やかではないけどなぜか落ち着く。他にはない歴史を秘める城下町を歩くツアー',
-    heroImage: '/images/tours/shimonoseki-castle-town.jpg',
+    heroImage: '/images/tours/chofu/furue-shoji-green.jpg',
     cardSummary:
       '静かな川沿いの道、国宝仏殿、土壁の小路。城下町長府は、他所にはない歴史を秘めた小さな町です。何故ここが、明治時代への始まりのきっかけとなったのか…　今日まで壊し過ぎず、また造り込み過ぎず、地元の人々の心が旅人に伝わるそんな町です。',
     overview: [

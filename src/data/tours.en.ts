@@ -153,7 +153,7 @@ export const toursEn: TourContent[] = [
     number: 'Tour-4',
     title: 'Shimonoseki Castle Town',
     subtitle: 'A cozy stroll through the peaceful castle town of Chofu, Shimonoseki',
-    heroImage: '/images/tours/shimonoseki-castle-town.jpg',
+    heroImage: '/images/tours/chofu/furue-shoji-green.jpg',
     cardSummary:
       'A peaceful riverside path, a National Treasure Buddhist hall, and narrow lanes lined with earthen walls welcome you. A calm and memorable journey into Japan’s past, connecting to the beginning of the Meiji Restoration.',
     overview: [
