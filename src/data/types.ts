@@ -4,6 +4,11 @@ export interface ItineraryStep {
   text: string;
 }
 
+export interface TourImage {
+  src: string;
+  alt: string;
+}
+
 export interface TourContent {
   slug: string;
   number: string;
@@ -12,7 +17,9 @@ export interface TourContent {
   heroImage: string;
   cardSummary: string;
   overview: string[];
+  overviewImages?: TourImage[];
   highlights: string[];
+  highlightImages?: TourImage[];
   detailPrice: string;
   bookingPrice: string;
   included: string;
@@ -44,7 +51,7 @@ export interface SiteContent {
   };
   hero: {
     eyebrow: string;
-    title: string;
+    title: string[];
     tagline: string;
   };
   intro: {
@@ -103,6 +110,7 @@ export interface UiStrings {
     policies: string;
     langSwitchLabel: string;
     langSwitchTo: string;
+    brandTagline: string;
   };
   buttons: {
     readMore: string;

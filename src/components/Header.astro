@@ -28,6 +28,11 @@ const navItems = [
 
 <header class="site-header" data-site-header>
   <div class="container site-header__inner">
+    <a class="site-header__brand" href={`${base}/${locale}/`}>
+      <span class="site-header__brand-title">Kanmon Tours</span>
+      <span class="site-header__brand-tagline">{ui.nav.brandTagline}</span>
+    </a>
+
     <button
       type="button"
       class="nav-toggle"
@@ -93,6 +98,26 @@ const navItems = [
     padding-top: 0.85rem;
     padding-bottom: 0.85rem;
     flex-wrap: wrap;
+  }
+
+  .site-header__brand {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+
+  .site-header__brand-title {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--color-navy);
+  }
+
+  .site-header__brand-tagline {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-blue);
   }
 
   .site-header__nav {

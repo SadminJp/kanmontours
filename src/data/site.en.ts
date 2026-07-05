@@ -7,9 +7,9 @@ export const siteEn: SiteContent = {
       'Local guided walking tours in the Kanmon Strait area: Kitakyushu City and Shimonoseki City, Fukuoka and Yamaguchi, Japan.',
   },
   hero: {
-    eyebrow: 'Japan Guided Walking Tours',
-    title: 'Kitakyushu City & Shimonoseki City — Fukuoka and Yamaguchi',
-    tagline: 'The Cities of the Strait — Where two seas and two shores meet',
+    eyebrow: 'Two-City Walks',
+    title: ['Kitakyushu City & Shimonoseki City', 'Fukuoka and Yamaguchi JAPAN'],
+    tagline: 'Guided Walking Tours Around the Kanmon Strait Area',
   },
   intro: {
     heading: 'The Cities of the Strait — Where two seas and two shores meet',

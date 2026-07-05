@@ -15,12 +15,15 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <section class="hero">
     <div class="container">
       <h1>{site.hero.eyebrow}</h1>
+      <p class="tagline tagline--strong">{site.hero.tagline}</p>
     </div>
   </section>
 
   <section class="section">
     <div class="container">
-      <h2 class="location-heading">{site.hero.title}</h2>
+      <h2 class="location-heading">
+        {site.hero.title.map((line, i) => <>{i > 0 && <br />}{line}</>)}
+      </h2>
       <figure class="city-banner__image">
         <img src={`${base}/images/hero.jpg`} alt="Aerial view of the Kanmon Strait connecting Kitakyushu and Shimonoseki" loading="lazy" />
       </figure>

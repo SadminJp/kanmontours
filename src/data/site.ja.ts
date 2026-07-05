@@ -6,9 +6,9 @@ export const siteJa: SiteContent = {
     description: '福岡県北九州市・山口県下関市、関門海峡エリアの地元ガイドによる少人数制街歩きツアー。',
   },
   hero: {
-    eyebrow: '街歩きガイドツアー',
-    title: '関門海峡エリア　福岡県北九州市・山口県下関市',
-    tagline: '海と町が出会う　海峡の二都市',
+    eyebrow: 'Two-City Walks',
+    title: ['福岡県北九州市・山口県下関市'],
+    tagline: '関門海峡エリア　街歩きガイドツアー',
   },
   intro: {
     heading: '海と町が出会う　海峡の二都市',

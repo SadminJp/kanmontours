@@ -293,6 +293,13 @@ table.meta-table th {
   margin-right: auto;
 }
 
+.hero .tagline--strong {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 700;
+  color: #ffffff;
+}
+
 /* Thin gold rule above the eyebrow as a heritage flourish. */
 .hero__rule {
   width: 64px;
