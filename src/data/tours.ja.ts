@@ -160,7 +160,7 @@ export const toursJa: TourContent[] = [
     ],
     overviewImages: [
       { src: '/images/tours/chofu/kozanji-temple.jpg', alt: '国宝の仏殿を有する功山寺（長府）' },
-      { src: '/images/tours/chofu/moritei-garden-interior.jpg', alt: '庭園を望む長府毛利邸の廊下' },
+      { src: '/images/tours/chofu/moritei-garden-interior.jpg', alt: '庭園に開かれた長府毛利邸の座敷' },
       { src: '/images/tours/chofu/furue-shoji-green.jpg', alt: '新緑に包まれた土壁の小路・古江小路' },
     ],
     highlights: [

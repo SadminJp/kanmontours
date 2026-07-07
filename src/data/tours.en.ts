@@ -163,7 +163,7 @@ export const toursEn: TourContent[] = [
     ],
     overviewImages: [
       { src: '/images/tours/chofu/kozanji-temple.jpg', alt: 'Kōzan-ji Temple’s National Treasure Buddhist hall, Chofu' },
-      { src: '/images/tours/chofu/moritei-garden-interior.jpg', alt: 'The garden corridor of Mori-tei, a former lord’s residence in Chofu' },
+      { src: '/images/tours/chofu/moritei-garden-interior.jpg', alt: 'A tatami room at Mori-tei opening onto the garden, a former lord’s residence in Chofu' },
       { src: '/images/tours/chofu/furue-shoji-green.jpg', alt: 'Furue Shoji, an earthen-wall lane framed by fresh green leaves' },
     ],
     highlights: [
