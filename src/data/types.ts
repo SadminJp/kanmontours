@@ -155,6 +155,8 @@ export interface UiStrings {
     submit: string;
     perPerson: string;
     selectedDate: string;
+    successMessage: string;
+    errorMessage: string;
   };
   inquiryForm: {
     pageTitle: string;
@@ -163,6 +165,8 @@ export interface UiStrings {
     email: string;
     message: string;
     submit: string;
+    successMessage: string;
+    errorMessage: string;
   };
   footer: {
     quickLinks: string;

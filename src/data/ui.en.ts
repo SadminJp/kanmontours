@@ -50,6 +50,8 @@ export const uiEn: UiStrings = {
     submit: 'SEND',
     perPerson: 'per person',
     selectedDate: 'Selected date',
+    successMessage: 'Thank you! We will send you the booking confirmation promptly by e-mail.',
+    errorMessage: 'Sorry, something went wrong sending your request. Please try again, or email us directly.',
   },
   inquiryForm: {
     pageTitle: 'Inquiry',
@@ -58,6 +60,8 @@ export const uiEn: UiStrings = {
     email: 'Your e-mail address',
     message: 'Message',
     submit: 'SEND',
+    successMessage: 'Thank you! We have received your inquiry and will reply within three working days.',
+    errorMessage: 'Sorry, something went wrong sending your message. Please try again, or email us directly.',
   },
   footer: {
     quickLinks: 'Quick Links',

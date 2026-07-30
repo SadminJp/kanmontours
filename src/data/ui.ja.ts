@@ -55,6 +55,8 @@ export const uiJa: UiStrings = {
     submit: '申し込む',
     perPerson: 'お一人様',
     selectedDate: '選択した日付',
+    successMessage: 'お申し込みありがとうございます。予約確認のメールを追って迅速にお送りいたします。',
+    errorMessage: '送信中にエラーが発生しました。お手数ですが再度お試しいただくか、メールにて直接ご連絡ください。',
   },
   inquiryForm: {
     pageTitle: 'お問い合わせ',
@@ -63,6 +65,8 @@ export const uiJa: UiStrings = {
     email: 'Eメールアドレス',
     message: '内容',
     submit: '送信',
+    successMessage: 'お問い合わせいただきありがとうございます。3営業日以内に返信いたします。',
+    errorMessage: '送信中にエラーが発生しました。お手数ですが再度お試しいただくか、メールにて直接ご連絡ください。',
   },
   footer: {
     quickLinks: 'クイックリンク',
