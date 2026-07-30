@@ -65,7 +65,7 @@ export const uiJa: UiStrings = {
     email: 'Eメールアドレス',
     message: '内容',
     submit: '送信',
-    successMessage: 'お問い合わせいただきありがとうございます。迅速にご返信いたします。',
+    successMessage: 'お問い合わせいただきありがとうございます。メールにて迅速にご返信いたします。',
     errorMessage: '送信中にエラーが発生しました。お手数ですが再度お試しいただくか、メールにて直接ご連絡ください。',
   },
   footer: {

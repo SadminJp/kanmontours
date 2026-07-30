@@ -60,7 +60,7 @@ export const uiEn: UiStrings = {
     email: 'Your e-mail address',
     message: 'Message',
     submit: 'SEND',
-    successMessage: 'Thank you! We have received your inquiry and will reply promptly.',
+    successMessage: 'Thank you! We have received your inquiry and will reply promptly via email.',
     errorMessage: 'Sorry, something went wrong sending your message. Please try again, or email us directly.',
   },
   footer: {
