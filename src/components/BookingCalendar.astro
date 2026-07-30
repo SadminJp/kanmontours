@@ -26,7 +26,9 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
   <input type="hidden" name={inputName} class="booking-calendar__input" required />
 </div>
 
-<style>
+<style is:global>
+  /* Global: the day grid is rebuilt client-side via innerHTML, so Astro's
+     scoped-style attribute never reaches those cells — this must stay global. */
   .booking-calendar {
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
