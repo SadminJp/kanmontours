@@ -128,6 +128,12 @@ export default async (req: Request, _context: Context): Promise<Response> => {
       return json({ error: 'Incorrect password.' }, 401);
     }
 
+    // A request with a password but no data is a login / session check from
+    // the admin page — confirm the password and stop, without touching Blobs.
+    if (data === undefined) {
+      return json({ ok: true });
+    }
+
     const normalized = normalizeSchedules(data);
     await store.setJSON(BLOB_KEY, normalized);
     return json({ ok: true, data: normalized });

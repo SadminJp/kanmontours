@@ -188,6 +188,21 @@
         cursor: not-allowed;
       }
 
+      button.link {
+        font: inherit;
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+        background: none;
+        border: none;
+        text-decoration: underline;
+        cursor: pointer;
+        padding: 0.6rem 0.25rem;
+      }
+
+      button.link:hover {
+        color: var(--color-text);
+      }
+
       .status {
         border-radius: var(--radius);
         padding: 0.75rem 1rem;
@@ -221,7 +236,18 @@
       <h1>Tour Schedule Admin</h1>
       <p class="intro">Set which days each tour runs. Changes go live within a minute of saving.</p>
 
-      <p id="load-status" class="status status--loading visible">Loading current schedule…</p>
+      <div class="card" id="login-card">
+        <h2>Admin Login</h2>
+        <form id="login-form">
+          <div class="save-row">
+            <input type="password" id="login-password" placeholder="Admin password" autocomplete="current-password" required />
+            <button type="submit" class="primary" id="login-btn">Log In</button>
+          </div>
+          <p id="login-status" class="status"></p>
+        </form>
+      </div>
+
+      <p id="load-status" class="status status--loading" hidden>Loading current schedule…</p>
 
       <form id="schedule-form" hidden>
         <div class="card">
@@ -237,8 +263,8 @@
         <div class="save-bar">
           <p id="save-status" class="status"></p>
           <div class="save-row">
-            <input type="password" id="password" placeholder="Admin password" autocomplete="current-password" required />
             <button type="submit" class="primary" id="save-btn">Save Changes</button>
+            <button type="button" class="link" id="logout-btn">Log out</button>
           </div>
         </div>
       </form>
@@ -263,12 +289,43 @@
       ];
 
       var API_URL = '/api/schedules';
+      var SESSION_KEY = 'kanmonAdminPassword';
 
+      var loginCard = document.getElementById('login-card');
+      var loginForm = document.getElementById('login-form');
+      var loginStatus = document.getElementById('login-status');
       var form = document.getElementById('schedule-form');
       var loadStatus = document.getElementById('load-status');
       var saveStatus = document.getElementById('save-status');
       var toursContainer = document.getElementById('tours-container');
       var saveBtn = document.getElementById('save-btn');
+
+      // sessionStorage: remembered for this browser tab only, cleared when the
+      // tab closes — a reasonable "logged in" lifetime without needing a real
+      // server-side session, which this single-shared-password model doesn't have.
+      function getSessionPassword() {
+        try { return sessionStorage.getItem(SESSION_KEY); } catch (e) { return null; }
+      }
+      function setSessionPassword(pw) {
+        try { sessionStorage.setItem(SESSION_KEY, pw); } catch (e) {}
+      }
+      function clearSessionPassword() {
+        try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+      }
+
+      // A request with a password and no data verifies the password without
+      // saving anything — see netlify/functions/schedules.ts.
+      function verifyPassword(password) {
+        return fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: password }),
+        }).then(function (response) {
+          return response.json().then(function (body) {
+            if (!response.ok) throw new Error(body.error || 'Incorrect password.');
+          });
+        });
+      }
 
       function setStatus(el, message, kind) {
         el.textContent = message;
@@ -435,34 +492,94 @@
         return data;
       }
 
-      // --- Load current schedule ---
+      // --- Login / session flow ---
 
-      fetch(API_URL)
-        .then(function (response) {
-          if (!response.ok) throw new Error('Request failed: ' + response.status);
-          return response.json();
-        })
-        .then(function (data) {
-          populateForm(data);
-          loadStatus.hidden = true;
-          form.hidden = false;
-        })
-        .catch(function () {
-          setStatus(loadStatus, 'Could not load the current schedule. Please reload this page to try again.', 'error');
+      function showLogin(message) {
+        clearSessionPassword();
+        loginCard.hidden = false;
+        loadStatus.hidden = true;
+        form.hidden = true;
+        document.getElementById('login-password').value = '';
+        if (message) {
+          setStatus(loginStatus, message, 'error');
+        } else {
+          clearStatus(loginStatus);
+        }
+      }
+
+      function loadSchedule() {
+        loginCard.hidden = true;
+        setStatus(loadStatus, 'Loading current schedule…', 'loading');
+        loadStatus.hidden = false;
+
+        fetch(API_URL)
+          .then(function (response) {
+            if (!response.ok) throw new Error('Request failed: ' + response.status);
+            return response.json();
+          })
+          .then(function (data) {
+            populateForm(data);
+            loadStatus.hidden = true;
+            form.hidden = false;
+          })
+          .catch(function () {
+            setStatus(loadStatus, 'Could not load the current schedule. Please reload this page to try again.', 'error');
+          });
+      }
+
+      // Returning with a remembered password from earlier in this tab session:
+      // re-check it quietly (it may have been changed on the server since) and
+      // either go straight to the form or fall back to the login screen.
+      var remembered = getSessionPassword();
+      if (remembered) {
+        verifyPassword(remembered).then(loadSchedule).catch(function () {
+          showLogin('Your session has expired. Please log in again.');
         });
+      } else {
+        showLogin();
+      }
+
+      loginForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var password = document.getElementById('login-password').value;
+        var loginBtn = document.getElementById('login-btn');
+        loginBtn.disabled = true;
+        setStatus(loginStatus, 'Checking…', 'loading');
+
+        verifyPassword(password)
+          .then(function () {
+            setSessionPassword(password);
+            loadSchedule();
+          })
+          .catch(function (error) {
+            setStatus(loginStatus, error.message || 'Incorrect password.', 'error');
+          })
+          .finally(function () {
+            loginBtn.disabled = false;
+          });
+      });
+
+      document.getElementById('logout-btn').addEventListener('click', function () {
+        showLogin();
+      });
 
       // --- Save ---
 
       form.addEventListener('submit', function (event) {
         event.preventDefault();
-        var passwordInput = document.getElementById('password');
+        var password = getSessionPassword();
+        if (!password) {
+          showLogin('Please log in again.');
+          return;
+        }
+
         saveBtn.disabled = true;
         setStatus(saveStatus, 'Saving…', 'loading');
 
         fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: passwordInput.value, data: collectFormData() }),
+          body: JSON.stringify({ password: password, data: collectFormData() }),
         })
           .then(function (response) {
             return response.json().then(function (body) {
@@ -475,7 +592,12 @@
             setStatus(saveStatus, 'Saved. Changes are live.', 'success');
           })
           .catch(function (error) {
-            setStatus(saveStatus, error.message || 'Something went wrong. Please try again.', 'error');
+            // The password may have been rotated server-side mid-session.
+            if (String(error.message).indexOf('Incorrect password') !== -1) {
+              showLogin('Your session has expired. Please log in again.');
+            } else {
+              setStatus(saveStatus, error.message || 'Something went wrong. Please try again.', 'error');
+            }
           })
           .finally(function () {
             saveBtn.disabled = false;
