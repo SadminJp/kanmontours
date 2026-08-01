@@ -33,10 +33,11 @@ const errorMessage = ui.booking.errorMessage;
           {tours.map((tour) => (
             <label class="tour-option">
               <input
-                type="checkbox"
+                type="radio"
                 name="tours"
                 data-tour-slug={tour.slug}
                 value={`${tour.number} ${tour.title} (${tour.bookingPrice})`}
+                required
               />
               <span>{tour.number} &mdash; {tour.title} &mdash; {tour.bookingPrice} {ui.booking.perPerson}</span>
             </label>
