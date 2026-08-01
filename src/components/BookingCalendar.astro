@@ -127,7 +127,8 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
     font-size: 0.9rem;
   }
 
-  .booking-calendar__status.is-error {
+  .booking-calendar__status.is-error,
+  .booking-calendar__status.is-notice {
     color: var(--color-orange-dark);
     font-weight: 600;
   }
@@ -192,6 +193,11 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
     const nextBtn = calendar.querySelector<HTMLButtonElement>('[data-action="next"]')!;
     const form = calendar.closest('form');
 
+    // The calendar chrome (nav, weekday header, day grid) is always shown
+    // once data has loaded — only individual day cells get disabled below
+    // when no tour is picked yet, not the whole calendar.
+    headerEl.hidden = false;
+
     // Earliest bookable date, honouring the booking cut-off in the T&Cs.
     const earliest = new Date();
     earliest.setHours(0, 0, 0, 0);
@@ -222,19 +228,19 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
         return activeSlugs().length > 0;
       }
 
-      // The calendar stays hidden behind a prompt until a tour is chosen —
-      // showing "available" dates for no particular tour would be meaningless.
+      // The calendar itself is always visible; when no tour is picked yet,
+      // activeSlugs() below returns an empty list, which isOperating() never
+      // matches — so render() already disables every day cell on its own.
+      // This just shows the orange prompt on top of that disabled grid.
       function updateAvailability() {
         if (hasSelectedTour()) {
           statusEl.hidden = true;
-          headerEl.hidden = false;
-          render();
         } else {
           statusEl.textContent = selectTourMessage;
-          statusEl.classList.remove('is-error');
+          statusEl.className = 'booking-calendar__status is-notice';
           statusEl.hidden = false;
-          headerEl.hidden = true;
         }
+        render();
       }
 
       function isOperating(iso: string, weekday: number, slugs: string[]) {
