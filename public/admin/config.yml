@@ -1,0 +1,96 @@
+# Decap CMS — admin UI for the tour operating days.
+#
+# SETUP: replace base_url below with the URL of your OAuth helper. GitHub's
+# OAuth flow needs a client secret, which cannot live in a static site, so a
+# small hosted endpoint does that exchange. Until this is filled in, logging in
+# at /kanmontours/admin/ will fail; nothing else on the site is affected.
+backend:
+  name: github
+  repo: SadminJp/kanmontours
+  branch: main
+  base_url: https://REPLACE-WITH-YOUR-OAUTH-HELPER.workers.dev
+
+# This admin only edits scheduling data, but Decap requires a media folder.
+media_folder: public/images
+public_folder: /kanmontours/images
+
+# Commit messages that read sensibly in the repo history.
+backend_commit_messages:
+  update: 'Update {{collection}} via admin'
+
+collections:
+  - name: schedule
+    label: 'Tour Schedule'
+    editor:
+      preview: false
+    files:
+      - name: operating_days
+        label: 'Operating Days'
+        file: src/data/schedules.json
+        description: >-
+          Set which days each tour runs. Changes go live a minute or so after
+          you publish.
+        fields:
+          - label: "Minimum days' notice"
+            name: minLeadDays
+            widget: number
+            value_type: int
+            min: 0
+            max: 60
+            hint: >-
+              How many days ahead a booking must be made. The calendar hides
+              anything sooner. Terms & Conditions currently say 3 days.
+
+          - label: 'Tours'
+            name: tours
+            widget: object
+            fields:
+              - label: 'Tour-1 — Moji Port Town / 門司港レトロの向こう側'
+                name: moji-port-town
+                widget: object
+                fields: &tourFields
+                  - label: 'Runs on these days'
+                    name: weekdays
+                    widget: select
+                    multiple: true
+                    required: false
+                    options:
+                      - { label: 'Monday / 月', value: 1 }
+                      - { label: 'Tuesday / 火', value: 2 }
+                      - { label: 'Wednesday / 水', value: 3 }
+                      - { label: 'Thursday / 木', value: 4 }
+                      - { label: 'Friday / 金', value: 5 }
+                      - { label: 'Saturday / 土', value: 6 }
+                      - { label: 'Sunday / 日', value: 0 }
+                    hint: 'The weekly pattern this tour normally runs on.'
+                  - label: 'Cancelled dates'
+                    name: blackoutDates
+                    widget: list
+                    required: false
+                    field: { label: 'Date', name: date, widget: date, format: 'YYYY-MM-DD' }
+                    hint: >-
+                      Specific dates this tour will NOT run, even though the
+                      weekday above matches. Use for holidays or guide leave.
+                  - label: 'Extra dates'
+                    name: extraDates
+                    widget: list
+                    required: false
+                    field: { label: 'Date', name: date, widget: date, format: 'YYYY-MM-DD' }
+                    hint: >-
+                      One-off dates this tour WILL run, outside its usual
+                      weekdays.
+
+              - label: 'Tour-2 — Kokura Castle / 小倉城と八坂神社'
+                name: kokura-castle
+                widget: object
+                fields: *tourFields
+
+              - label: 'Tour-3 — TOTO Museum / TOTOミュージアム'
+                name: toto-museum
+                widget: object
+                fields: *tourFields
+
+              - label: 'Tour-4 — Shimonoseki Castle Town / 歴史の舞台　城下町長府'
+                name: shimonoseki-castle-town
+                widget: object
+                fields: *tourFields
