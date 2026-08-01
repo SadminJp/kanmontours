@@ -34,6 +34,15 @@ export interface TourContent {
   walkingDistance: string;
 }
 
+export interface TourSchedule {
+  /** Days of the week the tour runs. 0 = Sunday … 6 = Saturday. */
+  weekdays: number[];
+  /** ISO dates (YYYY-MM-DD) the tour does not run, despite matching a weekday. */
+  blackoutDates: string[];
+  /** ISO dates (YYYY-MM-DD) the tour runs on, outside its usual weekdays. */
+  extraDates: string[];
+}
+
 export interface AccessRoute {
   label: string;
   lines: string[];

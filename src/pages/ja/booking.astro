@@ -4,6 +4,7 @@ import BookingCalendar from '../../components/BookingCalendar.astro';
 import { siteJa } from '../../data/site.ja';
 import { toursJa } from '../../data/tours.ja';
 import { uiJa } from '../../data/ui.ja';
+import { MIN_LEAD_DAYS, tourSchedules } from '../../data/schedules';
 
 const ui = uiJa;
 const tours = toursJa;
@@ -32,7 +33,12 @@ const errorMessage = ui.booking.errorMessage;
         <div class="tour-options">
           {tours.map((tour) => (
             <label class="tour-option">
-              <input type="checkbox" name="tours" value={`${tour.number} ${tour.title} (${tour.bookingPrice})`} />
+              <input
+                type="checkbox"
+                name="tours"
+                data-tour-slug={tour.slug}
+                value={`${tour.number} ${tour.title} (${tour.bookingPrice})`}
+              />
               <span>{tour.number} &mdash; {tour.title} &mdash; {ui.booking.perPerson} {tour.bookingPrice}</span>
             </label>
           ))}
@@ -40,7 +46,12 @@ const errorMessage = ui.booking.errorMessage;
 
         <h2>{ui.booking.step2}</h2>
         <p>{ui.booking.calendarHint}</p>
-        <BookingCalendar ui={ui} inputName="preferred-date" />
+        <BookingCalendar
+          ui={ui}
+          inputName="preferred-date"
+          schedules={tourSchedules}
+          minLeadDays={MIN_LEAD_DAYS}
+        />
 
         <h2>{ui.booking.step3}</h2>
         <div class="form-row">
