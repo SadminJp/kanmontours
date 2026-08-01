@@ -2,8 +2,7 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://sadminjp.github.io',
-  base: '/kanmontours',
+  site: 'https://kanmontours.jp',
   i18n: {
     locales: ['en', 'ja'],
     defaultLocale: 'en',

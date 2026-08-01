@@ -1,18 +1,18 @@
 # Decap CMS — admin UI for the tour operating days.
 #
-# SETUP: replace base_url below with the URL of your OAuth helper. GitHub's
-# OAuth flow needs a client secret, which cannot live in a static site, so a
-# small hosted endpoint does that exchange. Until this is filled in, logging in
-# at /kanmontours/admin/ will fail; nothing else on the site is affected.
+# No base_url here: with no value set, Decap defaults to Netlify's own
+# free hosted OAuth proxy (api.netlify.com/auth). That only recognizes
+# domains Netlify knows about, so this only works once the site is an
+# actual Netlify deployment with the GitHub OAuth App's Client ID/Secret
+# registered in that site's Project configuration > Access & security > OAuth.
 backend:
   name: github
   repo: SadminJp/kanmontours
   branch: main
-  base_url: https://REPLACE-WITH-YOUR-OAUTH-HELPER.workers.dev
 
 # This admin only edits scheduling data, but Decap requires a media folder.
 media_folder: public/images
-public_folder: /kanmontours/images
+public_folder: /images
 
 # Commit messages that read sensibly in the repo history.
 backend_commit_messages:
