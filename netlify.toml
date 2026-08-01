@@ -13,3 +13,11 @@
   from = "/api/schedules"
   to = "/.netlify/functions/schedules"
   status = 200
+
+# Clean URL for the admin-configurable notification email. Both GET and POST
+# require the ADMIN_PASSWORD env var; POST also needs NETLIFY_API_TOKEN to
+# apply the change — see netlify/functions/settings.ts.
+[[redirects]]
+  from = "/api/settings"
+  to = "/.netlify/functions/settings"
+  status = 200

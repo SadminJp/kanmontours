@@ -8,7 +8,6 @@ import { uiJa } from '../../data/ui.ja';
 const ui = uiJa;
 const tours = toursJa;
 
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mpqvnwab';
 const successMessage = ui.booking.successMessage;
 const errorMessage = ui.booking.errorMessage;
 ---
@@ -27,7 +26,12 @@ const errorMessage = ui.booking.errorMessage;
 
   <section class="section">
     <div class="container">
-      <form action={FORMSPREE_ENDPOINT} method="POST" class="booking-form">
+      <form name="booking" method="POST" action="/" data-netlify="true" data-netlify-honeypot="bot-field" class="booking-form">
+        <input type="hidden" name="form-name" value="booking" />
+        <p style="display:none;">
+          <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+        </p>
+
         <h2>{ui.booking.step1}</h2>
         <div class="tour-options">
           {tours.map((tour) => (
@@ -116,10 +120,10 @@ const errorMessage = ui.booking.errorMessage;
       status.className = 'form-status';
 
       try {
-        const response = await fetch(form.action, {
+        const response = await fetch('/', {
           method: 'POST',
-          body: new FormData(form),
-          headers: { Accept: 'application/json' },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(new FormData(form)).toString(),
         });
 
         if (response.ok) {
