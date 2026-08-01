@@ -12,16 +12,17 @@ import type { Context } from '@netlify/functions';
  *        model as netlify/functions/schedules.ts.
  *
  * Saving does two things: stores the address in Blobs (our own source of
- * truth), then calls Netlify's own Hooks API to point the "booking" and
- * "inquiry" forms' native email notifications at that address. The Hooks API
- * has no confirmed single-call "update" — existing email/submission_created
- * hooks are deleted and recreated instead, which is correct regardless of
- * whether an update endpoint also exists.
+ * truth), then calls Netlify's own Hooks API to point the site's native
+ * "submission created" email notification at that address. Per Netlify's
+ * published OpenAPI spec (github.com/netlify/open-api/blob/master/swagger.yml)
+ * a hook has no form_id/form_name field at all — it's site-wide, covering
+ * every form on the site, which is exactly what a single configurable
+ * address needs. There's also no confirmed single-call "update"; existing
+ * email/submission_created hooks are deleted and recreated instead.
  */
 
 const STORE_NAME = 'kanmon-tours';
 const BLOB_KEY = 'settings';
-const FORM_NAMES = ['booking', 'inquiry'];
 const NETLIFY_API = 'https://api.netlify.com/api/v1';
 
 interface SiteSettings {
@@ -65,10 +66,14 @@ async function syncNotificationHooks(email: string): Promise<{ ok: true } | { ok
   let existingHooks: Array<{ id: string; type: string; event: string }>;
   try {
     const listResponse = await fetch(`${NETLIFY_API}/hooks?site_id=${encodeURIComponent(siteId)}`, { headers });
-    if (!listResponse.ok) throw new Error(String(listResponse.status));
+    if (!listResponse.ok) {
+      const detail = await listResponse.text().catch(() => '');
+      throw new Error(`${listResponse.status}${detail ? `: ${detail}` : ''}`);
+    }
     existingHooks = await listResponse.json();
-  } catch {
-    return { ok: false, error: 'Could not read the site’s existing Netlify notification settings.' };
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    return { ok: false, error: `Could not read the site’s existing Netlify notification settings (${detail}).` };
   }
 
   // This integration owns every email/submission_created hook on the site —
@@ -82,23 +87,27 @@ async function syncNotificationHooks(email: string): Promise<{ ok: true } | { ok
     }
   }
 
-  for (const formName of FORM_NAMES) {
-    try {
-      const createResponse = await fetch(`${NETLIFY_API}/hooks`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          site_id: siteId,
-          form_name: formName,
-          type: 'email',
-          event: 'submission_created',
-          data: { email },
-        }),
-      });
-      if (!createResponse.ok) throw new Error(String(createResponse.status));
-    } catch {
-      return { ok: false, error: `Saved, but could not set up notifications for the "${formName}" form.` };
+  // site_id is a query parameter on this endpoint, not a body field — the
+  // hook object itself has no form-scoping field, so one hook here covers
+  // every form on the site.
+  try {
+    const createResponse = await fetch(`${NETLIFY_API}/hooks?site_id=${encodeURIComponent(siteId)}`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        site_id: siteId,
+        type: 'email',
+        event: 'submission_created',
+        data: { email },
+      }),
+    });
+    if (!createResponse.ok) {
+      const detail = await createResponse.text().catch(() => '');
+      throw new Error(`${createResponse.status}${detail ? `: ${detail}` : ''}`);
     }
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    return { ok: false, error: `Saved, but could not set up email notifications (${detail}).` };
   }
 
   return { ok: true };
