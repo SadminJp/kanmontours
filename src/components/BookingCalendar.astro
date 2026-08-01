@@ -1,25 +1,22 @@
 ---
-import type { TourSchedule, UiStrings } from '../data/types';
+import type { UiStrings } from '../data/types';
 
 interface Props {
   ui: UiStrings;
   inputName?: string;
-  schedules: Record<string, TourSchedule>;
-  minLeadDays: number;
 }
 
-const { ui, inputName = 'preferred-date', schedules, minLeadDays } = Astro.props;
+const { ui, inputName = 'preferred-date' } = Astro.props;
 ---
 
 <div
   class="booking-calendar"
   data-months={JSON.stringify(ui.calendar.months)}
   data-weekdays={JSON.stringify(ui.calendar.weekdays)}
-  data-schedules={JSON.stringify(schedules)}
-  data-min-lead-days={String(minLeadDays)}
   data-selected-label={ui.booking.selectedDate}
 >
-  <div class="booking-calendar__header">
+  <p class="booking-calendar__status">Loading available dates…</p>
+  <div class="booking-calendar__header" hidden>
     <button type="button" class="booking-calendar__nav" data-action="prev" aria-label="Previous month">&#9664;</button>
     <span class="booking-calendar__title"></span>
     <button type="button" class="booking-calendar__nav" data-action="next" aria-label="Next month">&#9654;</button>
@@ -121,6 +118,17 @@ const { ui, inputName = 'preferred-date', schedules, minLeadDays } = Astro.props
     color: var(--color-navy);
     min-height: 1.5em;
   }
+
+  .booking-calendar__status {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  .booking-calendar__status.is-error {
+    color: var(--color-orange-dark);
+    font-weight: 600;
+  }
 </style>
 
 <script>
@@ -130,35 +138,69 @@ const { ui, inputName = 'preferred-date', schedules, minLeadDays } = Astro.props
     extraDates: string[];
   }
 
-  function initCalendars() {
-    document.querySelectorAll<HTMLElement>('.booking-calendar').forEach((calendar) => {
-      if (calendar.dataset.initialized) return;
-      calendar.dataset.initialized = 'true';
+  interface SchedulesResponse {
+    minLeadDays: number;
+    tours: Record<string, TourSchedule>;
+  }
 
-      const months: string[] = JSON.parse(calendar.dataset.months || '[]');
-      const weekdays: string[] = JSON.parse(calendar.dataset.weekdays || '[]');
-      const schedules: Record<string, TourSchedule> = JSON.parse(calendar.dataset.schedules || '{}');
-      const minLeadDays = Number(calendar.dataset.minLeadDays || '0');
-      const selectedLabel = calendar.dataset.selectedLabel || 'Selected date';
+  const SCHEDULES_URL = '/api/schedules';
 
-      const titleEl = calendar.querySelector<HTMLElement>('.booking-calendar__title')!;
-      const weekdaysEl = calendar.querySelector<HTMLElement>('.booking-calendar__weekdays')!;
-      const gridEl = calendar.querySelector<HTMLElement>('.booking-calendar__grid')!;
-      const selectedEl = calendar.querySelector<HTMLElement>('.booking-calendar__selected')!;
-      const inputEl = calendar.querySelector<HTMLInputElement>('.booking-calendar__input')!;
-      const prevBtn = calendar.querySelector<HTMLButtonElement>('[data-action="prev"]')!;
-      const nextBtn = calendar.querySelector<HTMLButtonElement>('[data-action="next"]')!;
-      const form = calendar.closest('form');
+  async function initCalendars() {
+    const calendars = Array.from(document.querySelectorAll<HTMLElement>('.booking-calendar')).filter(
+      (calendar) => !calendar.dataset.initialized
+    );
+    if (!calendars.length) return;
+    calendars.forEach((calendar) => (calendar.dataset.initialized = 'true'));
 
-      // Earliest bookable date, honouring the booking cut-off in the T&Cs.
-      const earliest = new Date();
-      earliest.setHours(0, 0, 0, 0);
-      earliest.setDate(earliest.getDate() + minLeadDays);
+    // One fetch shared by every calendar on the page — in practice there's
+    // only ever one, but this avoids a redundant request if that changes.
+    let schedulesData: SchedulesResponse;
+    try {
+      const response = await fetch(SCHEDULES_URL);
+      if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+      schedulesData = await response.json();
+    } catch {
+      calendars.forEach((calendar) => {
+        const statusEl = calendar.querySelector<HTMLElement>('.booking-calendar__status')!;
+        statusEl.textContent = 'Unable to load available dates. Please contact us to book.';
+        statusEl.classList.add('is-error');
+      });
+      return;
+    }
 
-      let viewYear = earliest.getFullYear();
-      let viewMonth = earliest.getMonth();
+    calendars.forEach((calendar) => initCalendar(calendar, schedulesData));
+  }
 
-      weekdaysEl.innerHTML = weekdays.map((day) => `<div>${day}</div>`).join('');
+  function initCalendar(calendar: HTMLElement, schedulesData: SchedulesResponse) {
+    const months: string[] = JSON.parse(calendar.dataset.months || '[]');
+    const weekdays: string[] = JSON.parse(calendar.dataset.weekdays || '[]');
+    const schedules = schedulesData.tours;
+    const minLeadDays = schedulesData.minLeadDays;
+    const selectedLabel = calendar.dataset.selectedLabel || 'Selected date';
+
+    const statusEl = calendar.querySelector<HTMLElement>('.booking-calendar__status')!;
+    const headerEl = calendar.querySelector<HTMLElement>('.booking-calendar__header')!;
+    const titleEl = calendar.querySelector<HTMLElement>('.booking-calendar__title')!;
+    const weekdaysEl = calendar.querySelector<HTMLElement>('.booking-calendar__weekdays')!;
+    const gridEl = calendar.querySelector<HTMLElement>('.booking-calendar__grid')!;
+    const selectedEl = calendar.querySelector<HTMLElement>('.booking-calendar__selected')!;
+    const inputEl = calendar.querySelector<HTMLInputElement>('.booking-calendar__input')!;
+    const prevBtn = calendar.querySelector<HTMLButtonElement>('[data-action="prev"]')!;
+    const nextBtn = calendar.querySelector<HTMLButtonElement>('[data-action="next"]')!;
+    const form = calendar.closest('form');
+
+    statusEl.hidden = true;
+    headerEl.hidden = false;
+
+    // Earliest bookable date, honouring the booking cut-off in the T&Cs.
+    const earliest = new Date();
+    earliest.setHours(0, 0, 0, 0);
+    earliest.setDate(earliest.getDate() + minLeadDays);
+
+    let viewYear = earliest.getFullYear();
+    let viewMonth = earliest.getMonth();
+
+    weekdaysEl.innerHTML = weekdays.map((day) => `<div>${day}</div>`).join('');
 
       // Format in local time — toISOString() would shift the date by a day for
       // anyone east of UTC, which is every visitor booking from Japan.
@@ -265,8 +307,7 @@ const { ui, inputName = 'preferred-date', schedules, minLeadDays } = Astro.props
         });
       });
 
-      render();
-    });
+    render();
   }
 
   document.addEventListener('DOMContentLoaded', initCalendars);

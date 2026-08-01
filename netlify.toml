@@ -1,6 +1,15 @@
 [build]
   command = "npm run build"
   publish = "dist"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "22"
+
+# Clean URL for the schedules API. GET is public (the booking calendar
+# needs it); POST requires the ADMIN_PASSWORD env var — see
+# netlify/functions/schedules.ts.
+[[redirects]]
+  from = "/api/schedules"
+  to = "/.netlify/functions/schedules"
+  status = 200

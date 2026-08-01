@@ -5,9 +5,482 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>Kanmon Tours — Schedule Admin</title>
+    <style>
+      :root {
+        --color-orange: #ff6600;
+        --color-orange-dark: #e65c00;
+        --color-green: #00b050;
+        --color-green-dark: #008a40;
+        --color-navy: #173b46;
+        --color-blue: #4bacc6;
+        --color-blue-dark: #1f7e96;
+        --color-bg-alt: #f6f3ec;
+        --color-text: #2c2925;
+        --color-text-muted: #6a655d;
+        --color-border: #e5e0d6;
+        --radius: 6px;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+        color: var(--color-text);
+        background: var(--color-bg-alt);
+        margin: 0;
+        padding: 1.5rem;
+      }
+
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        color: var(--color-navy);
+        font-size: 1.6rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .intro {
+        color: var(--color-text-muted);
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+      }
+
+      .card {
+        background: #ffffff;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .card h2 {
+        color: var(--color-navy);
+        font-size: 1.15rem;
+        margin-top: 0;
+      }
+
+      fieldset {
+        border: none;
+        padding: 0;
+        margin: 0 0 1rem;
+      }
+
+      legend {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--color-text);
+        margin-bottom: 0.5rem;
+        padding: 0;
+      }
+
+      .weekdays {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem 1rem;
+      }
+
+      .weekdays label {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .date-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .date-row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+
+      .date-row input[type='date'] {
+        font: inherit;
+        padding: 0.35rem 0.5rem;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+      }
+
+      .date-row button,
+      .add-date-btn {
+        font: inherit;
+        font-size: 0.82rem;
+        border: 1px solid var(--color-border);
+        background: var(--color-bg-alt);
+        border-radius: var(--radius);
+        padding: 0.3rem 0.6rem;
+        cursor: pointer;
+        color: var(--color-text);
+      }
+
+      .date-row button:hover,
+      .add-date-btn:hover {
+        background: #ece7da;
+      }
+
+      .lead-days {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .lead-days input {
+        font: inherit;
+        width: 5rem;
+        padding: 0.4rem 0.6rem;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+      }
+
+      .save-bar {
+        position: sticky;
+        bottom: 0;
+        background: var(--color-bg-alt);
+        padding-top: 1rem;
+        border-top: 1px solid var(--color-border);
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .save-row {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .save-row input[type='password'] {
+        font: inherit;
+        padding: 0.5rem 0.7rem;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        flex: 1;
+        min-width: 180px;
+      }
+
+      button.primary {
+        font: inherit;
+        font-weight: 600;
+        background: var(--color-orange);
+        color: #ffffff;
+        border: none;
+        border-radius: var(--radius);
+        padding: 0.6rem 1.4rem;
+        cursor: pointer;
+      }
+
+      button.primary:hover {
+        background: var(--color-orange-dark);
+      }
+
+      button.primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .status {
+        border-radius: var(--radius);
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        display: none;
+      }
+
+      .status.visible { display: block; }
+
+      .status--success {
+        background: rgba(0, 176, 80, 0.1);
+        border: 1px solid var(--color-green);
+        color: var(--color-green-dark);
+      }
+
+      .status--error {
+        background: rgba(255, 102, 0, 0.1);
+        border: 1px solid var(--color-orange);
+        color: var(--color-orange-dark);
+      }
+
+      .status--loading {
+        background: #eef2f4;
+        border: 1px solid var(--color-border);
+        color: var(--color-text-muted);
+      }
+    </style>
   </head>
   <body>
-    <!-- Decap reads ./config.yml, which resolves to /admin/config.yml -->
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <main>
+      <h1>Tour Schedule Admin</h1>
+      <p class="intro">Set which days each tour runs. Changes go live within a minute of saving.</p>
+
+      <p id="load-status" class="status status--loading visible">Loading current schedule…</p>
+
+      <form id="schedule-form" hidden>
+        <div class="card">
+          <h2>Booking lead time</h2>
+          <div class="lead-days">
+            <label for="min-lead-days">Minimum days' notice required</label>
+            <input type="number" id="min-lead-days" name="minLeadDays" min="0" max="60" required />
+          </div>
+        </div>
+
+        <div id="tours-container"></div>
+
+        <div class="save-bar">
+          <p id="save-status" class="status"></p>
+          <div class="save-row">
+            <input type="password" id="password" placeholder="Admin password" autocomplete="current-password" required />
+            <button type="submit" class="primary" id="save-btn">Save Changes</button>
+          </div>
+        </div>
+      </form>
+    </main>
+
+    <script>
+      var TOURS = [
+        { slug: 'moji-port-town', label: 'Tour-1 — Moji Port Town' },
+        { slug: 'kokura-castle', label: 'Tour-2 — Kokura Castle' },
+        { slug: 'toto-museum', label: 'Tour-3 — TOTO Museum' },
+        { slug: 'shimonoseki-castle-town', label: 'Tour-4 — Shimonoseki Castle Town' },
+      ];
+
+      var WEEKDAYS = [
+        { value: 0, label: 'Sun' },
+        { value: 1, label: 'Mon' },
+        { value: 2, label: 'Tue' },
+        { value: 3, label: 'Wed' },
+        { value: 4, label: 'Thu' },
+        { value: 5, label: 'Fri' },
+        { value: 6, label: 'Sat' },
+      ];
+
+      var API_URL = '/api/schedules';
+
+      var form = document.getElementById('schedule-form');
+      var loadStatus = document.getElementById('load-status');
+      var saveStatus = document.getElementById('save-status');
+      var toursContainer = document.getElementById('tours-container');
+      var saveBtn = document.getElementById('save-btn');
+
+      function setStatus(el, message, kind) {
+        el.textContent = message;
+        el.className = 'status visible' + (kind ? ' status--' + kind : '');
+      }
+
+      function clearStatus(el) {
+        el.textContent = '';
+        el.className = 'status';
+      }
+
+      // --- Building the per-tour form sections ---
+
+      function buildDateRow(container, iso) {
+        var row = document.createElement('div');
+        row.className = 'date-row';
+
+        var input = document.createElement('input');
+        input.type = 'date';
+        input.value = iso || '';
+        row.appendChild(input);
+
+        var remove = document.createElement('button');
+        remove.type = 'button';
+        remove.textContent = 'Remove';
+        remove.addEventListener('click', function () {
+          row.remove();
+        });
+        row.appendChild(remove);
+
+        container.appendChild(row);
+      }
+
+      function buildDateList(labelText, hint) {
+        var wrap = document.createElement('div');
+
+        var legend = document.createElement('div');
+        legend.textContent = labelText;
+        legend.style.fontWeight = '600';
+        legend.style.fontSize = '0.9rem';
+        legend.style.marginBottom = '0.35rem';
+        wrap.appendChild(legend);
+
+        if (hint) {
+          var hintEl = document.createElement('div');
+          hintEl.textContent = hint;
+          hintEl.style.fontSize = '0.8rem';
+          hintEl.style.color = 'var(--color-text-muted)';
+          hintEl.style.marginBottom = '0.4rem';
+          wrap.appendChild(hintEl);
+        }
+
+        var list = document.createElement('div');
+        list.className = 'date-list';
+        wrap.appendChild(list);
+
+        var addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.className = 'add-date-btn';
+        addBtn.textContent = '+ Add date';
+        addBtn.addEventListener('click', function () {
+          buildDateRow(list, '');
+        });
+        wrap.appendChild(addBtn);
+
+        return { wrap: wrap, list: list };
+      }
+
+      function buildTourSection(tour) {
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.slug = tour.slug;
+
+        var h2 = document.createElement('h2');
+        h2.textContent = tour.label;
+        card.appendChild(h2);
+
+        var weekdaysField = document.createElement('fieldset');
+        var legend = document.createElement('legend');
+        legend.textContent = 'Runs on these days';
+        weekdaysField.appendChild(legend);
+
+        var weekdaysWrap = document.createElement('div');
+        weekdaysWrap.className = 'weekdays';
+        WEEKDAYS.forEach(function (day) {
+          var label = document.createElement('label');
+          var checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = String(day.value);
+          checkbox.dataset.weekday = String(day.value);
+          label.appendChild(checkbox);
+          label.appendChild(document.createTextNode(day.label));
+          weekdaysWrap.appendChild(label);
+        });
+        weekdaysField.appendChild(weekdaysWrap);
+        card.appendChild(weekdaysField);
+
+        var blackout = buildDateList('Cancelled dates', 'This tour will NOT run on these dates, even on a matching weekday.');
+        blackout.list.dataset.role = 'blackoutDates';
+        card.appendChild(blackout.wrap);
+
+        var extra = buildDateList('Extra dates', 'This tour WILL run on these dates, outside its usual weekdays.');
+        extra.list.dataset.role = 'extraDates';
+        card.appendChild(extra.wrap);
+
+        return card;
+      }
+
+      TOURS.forEach(function (tour) {
+        toursContainer.appendChild(buildTourSection(tour));
+      });
+
+      // --- Populating from loaded data ---
+
+      function populateForm(data) {
+        document.getElementById('min-lead-days').value = data.minLeadDays;
+
+        TOURS.forEach(function (tour) {
+          var card = toursContainer.querySelector('[data-slug="' + tour.slug + '"]');
+          var schedule = (data.tours && data.tours[tour.slug]) || { weekdays: [], blackoutDates: [], extraDates: [] };
+
+          card.querySelectorAll('[data-weekday]').forEach(function (checkbox) {
+            checkbox.checked = schedule.weekdays.indexOf(Number(checkbox.dataset.weekday)) !== -1;
+          });
+
+          ['blackoutDates', 'extraDates'].forEach(function (role) {
+            var list = card.querySelector('[data-role="' + role + '"]');
+            list.innerHTML = '';
+            (schedule[role] || []).forEach(function (iso) {
+              buildDateRow(list, iso);
+            });
+          });
+        });
+      }
+
+      // --- Collecting the form back into the API shape ---
+
+      function collectFormData() {
+        var data = {
+          minLeadDays: Number(document.getElementById('min-lead-days').value),
+          tours: {},
+        };
+
+        TOURS.forEach(function (tour) {
+          var card = toursContainer.querySelector('[data-slug="' + tour.slug + '"]');
+          var weekdays = Array.prototype.slice
+            .call(card.querySelectorAll('[data-weekday]:checked'))
+            .map(function (checkbox) { return Number(checkbox.dataset.weekday); });
+
+          var readDates = function (role) {
+            return Array.prototype.slice
+              .call(card.querySelectorAll('[data-role="' + role + '"] input[type="date"]'))
+              .map(function (input) { return input.value; })
+              .filter(function (value) { return value; });
+          };
+
+          data.tours[tour.slug] = {
+            weekdays: weekdays,
+            blackoutDates: readDates('blackoutDates'),
+            extraDates: readDates('extraDates'),
+          };
+        });
+
+        return data;
+      }
+
+      // --- Load current schedule ---
+
+      fetch(API_URL)
+        .then(function (response) {
+          if (!response.ok) throw new Error('Request failed: ' + response.status);
+          return response.json();
+        })
+        .then(function (data) {
+          populateForm(data);
+          loadStatus.hidden = true;
+          form.hidden = false;
+        })
+        .catch(function () {
+          setStatus(loadStatus, 'Could not load the current schedule. Please reload this page to try again.', 'error');
+        });
+
+      // --- Save ---
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var passwordInput = document.getElementById('password');
+        saveBtn.disabled = true;
+        setStatus(saveStatus, 'Saving…', 'loading');
+
+        fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: passwordInput.value, data: collectFormData() }),
+        })
+          .then(function (response) {
+            return response.json().then(function (body) {
+              if (!response.ok) throw new Error(body.error || 'Save failed.');
+              return body;
+            });
+          })
+          .then(function (body) {
+            populateForm(body.data);
+            setStatus(saveStatus, 'Saved. Changes are live.', 'success');
+          })
+          .catch(function (error) {
+            setStatus(saveStatus, error.message || 'Something went wrong. Please try again.', 'error');
+          })
+          .finally(function () {
+            saveBtn.disabled = false;
+          });
+      });
+    </script>
   </body>
 </html>

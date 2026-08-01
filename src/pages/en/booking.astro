@@ -4,7 +4,6 @@ import BookingCalendar from '../../components/BookingCalendar.astro';
 import { siteEn } from '../../data/site.en';
 import { toursEn } from '../../data/tours.en';
 import { uiEn } from '../../data/ui.en';
-import { MIN_LEAD_DAYS, tourSchedules } from '../../data/schedules';
 
 const ui = uiEn;
 const tours = toursEn;
@@ -46,12 +45,7 @@ const errorMessage = ui.booking.errorMessage;
 
         <h2>{ui.booking.step2}</h2>
         <p>{ui.booking.calendarHint}</p>
-        <BookingCalendar
-          ui={ui}
-          inputName="preferred-date"
-          schedules={tourSchedules}
-          minLeadDays={MIN_LEAD_DAYS}
-        />
+        <BookingCalendar ui={ui} inputName="preferred-date" />
 
         <h2>{ui.booking.step3}</h2>
         <label class="form-field">
