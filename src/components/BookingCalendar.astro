@@ -14,8 +14,10 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
   data-months={JSON.stringify(ui.calendar.months)}
   data-weekdays={JSON.stringify(ui.calendar.weekdays)}
   data-selected-label={ui.booking.selectedDate}
+  data-error-message={ui.booking.datesUnavailable}
+  data-select-tour-message={ui.booking.selectTourFirst}
 >
-  <p class="booking-calendar__status">Loading available dates…</p>
+  <p class="booking-calendar__status">{ui.booking.loadingDates}</p>
   <div class="booking-calendar__header" hidden>
     <button type="button" class="booking-calendar__nav" data-action="prev" aria-label="Previous month">&#9664;</button>
     <span class="booking-calendar__title"></span>
@@ -162,7 +164,7 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
     } catch {
       calendars.forEach((calendar) => {
         const statusEl = calendar.querySelector<HTMLElement>('.booking-calendar__status')!;
-        statusEl.textContent = 'Unable to load available dates. Please contact us to book.';
+        statusEl.textContent = calendar.dataset.errorMessage || 'Unable to load available dates. Please contact us to book.';
         statusEl.classList.add('is-error');
       });
       return;
@@ -177,6 +179,7 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
     const schedules = schedulesData.tours;
     const minLeadDays = schedulesData.minLeadDays;
     const selectedLabel = calendar.dataset.selectedLabel || 'Selected date';
+    const selectTourMessage = calendar.dataset.selectTourMessage || 'Please select a tour to see available dates.';
 
     const statusEl = calendar.querySelector<HTMLElement>('.booking-calendar__status')!;
     const headerEl = calendar.querySelector<HTMLElement>('.booking-calendar__header')!;
@@ -188,9 +191,6 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
     const prevBtn = calendar.querySelector<HTMLButtonElement>('[data-action="prev"]')!;
     const nextBtn = calendar.querySelector<HTMLButtonElement>('[data-action="next"]')!;
     const form = calendar.closest('form');
-
-    statusEl.hidden = true;
-    headerEl.hidden = false;
 
     // Earliest bookable date, honouring the booking cut-off in the T&Cs.
     const earliest = new Date();
@@ -211,13 +211,30 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
         return `${year}-${month}-${day}`;
       }
 
-      // The tours currently ticked, or every tour when none are ticked yet.
       function activeSlugs() {
         const checked = form
           ? Array.from(form.querySelectorAll<HTMLInputElement>('input[name="tours"]:checked'))
           : [];
-        const slugs = checked.map((input) => input.dataset.tourSlug).filter(Boolean) as string[];
-        return slugs.length ? slugs : Object.keys(schedules);
+        return checked.map((input) => input.dataset.tourSlug).filter(Boolean) as string[];
+      }
+
+      function hasSelectedTour() {
+        return activeSlugs().length > 0;
+      }
+
+      // The calendar stays hidden behind a prompt until a tour is chosen —
+      // showing "available" dates for no particular tour would be meaningless.
+      function updateAvailability() {
+        if (hasSelectedTour()) {
+          statusEl.hidden = true;
+          headerEl.hidden = false;
+          render();
+        } else {
+          statusEl.textContent = selectTourMessage;
+          statusEl.classList.remove('is-error');
+          statusEl.hidden = false;
+          headerEl.hidden = true;
+        }
       }
 
       function isOperating(iso: string, weekday: number, slugs: string[]) {
@@ -293,21 +310,17 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
       prevBtn.addEventListener('click', () => shiftMonth(-1));
       nextBtn.addEventListener('click', () => shiftMonth(1));
 
-      // Changing the tour selection changes which days are on offer, so drop a
-      // date that the newly chosen tours don't actually run on.
+      // Switching tours always clears the date rather than carrying over a
+      // date that happens to still be valid — the choice of date should be
+      // deliberate for whichever tour is now selected, not inherited.
       form?.querySelectorAll<HTMLInputElement>('input[name="tours"]').forEach((input) => {
         input.addEventListener('change', () => {
-          const iso = inputEl.value;
-          if (iso) {
-            const [year, month, day] = iso.split('-').map(Number);
-            const selected = new Date(year, month - 1, day);
-            if (!isOperating(iso, selected.getDay(), activeSlugs())) clearDate();
-          }
-          render();
+          clearDate();
+          updateAvailability();
         });
       });
 
-    render();
+    updateAvailability();
   }
 
   document.addEventListener('DOMContentLoaded', initCalendars);

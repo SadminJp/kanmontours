@@ -137,6 +137,9 @@ export interface UiStrings {
     step1: string;
     step2: string;
     calendarHint: string;
+    loadingDates: string;
+    datesUnavailable: string;
+    selectTourFirst: string;
     step3: string;
     fields: {
       totalParticipants?: string;

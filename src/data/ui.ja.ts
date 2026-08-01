@@ -39,6 +39,9 @@ export const uiJa: UiStrings = {
     step1: '1. 参加希望ツアーを選んで下さい。',
     step2: '2. ツアーカレンダーの催行日から希望日を選んで下さい。',
     calendarHint: 'ご希望の日付をクリックして選択してください。',
+    loadingDates: '利用可能な日付を読み込み中…',
+    datesUnavailable: '利用可能な日付を読み込めませんでした。お手数ですが、メールにて直接お問い合わせください。',
+    selectTourFirst: 'ツアーを選択すると、選べる日付が表示されます。',
     step3: '3. 必要事項を記入して下さい。',
     fields: {
       adults: '大人',

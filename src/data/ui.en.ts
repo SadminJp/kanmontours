@@ -39,6 +39,9 @@ export const uiEn: UiStrings = {
     step1: '1. Please tick the box to choose a tour.',
     step2: '2. Check availability by Tour Calendar, and click the date.',
     calendarHint: 'Click a date to select it for your booking.',
+    loadingDates: 'Loading available dates…',
+    datesUnavailable: 'Unable to load available dates. Please contact us to book.',
+    selectTourFirst: 'Please select a tour to see available dates.',
     step3: '3. Please give us your information',
     fields: {
       totalParticipants: 'Total No. of Participants',
