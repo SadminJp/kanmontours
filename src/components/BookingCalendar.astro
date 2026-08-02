@@ -157,7 +157,7 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
   }
 
   const SCHEDULES_URL = '/api/schedules';
-  const MAX_ADVANCE_MONTHS = 3;
+  const MAX_ADVANCE_MONTHS = 6;
 
   async function initCalendars() {
     const calendars = Array.from(document.querySelectorAll<HTMLElement>('.booking-calendar')).filter(
