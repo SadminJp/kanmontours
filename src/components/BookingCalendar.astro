@@ -66,6 +66,13 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
     color: #ffffff;
   }
 
+  .booking-calendar__nav:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--color-bg-alt);
+    color: var(--color-blue-dark);
+  }
+
   .booking-calendar__weekdays,
   .booking-calendar__grid {
     display: grid;
@@ -96,14 +103,17 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
     cursor: default;
   }
 
-  /* Before the booking cut-off, or not an operating day for the chosen tours. */
+  /* Before the booking cut-off, beyond the booking window, or not an
+     operating day for the chosen tours. */
   .booking-calendar__day.is-past,
+  .booking-calendar__day.is-too-far,
   .booking-calendar__day.is-unavailable {
     color: var(--color-border);
     cursor: not-allowed;
   }
 
   .booking-calendar__day.is-past:hover,
+  .booking-calendar__day.is-too-far:hover,
   .booking-calendar__day.is-unavailable:hover {
     background: transparent;
   }
@@ -147,6 +157,7 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
   }
 
   const SCHEDULES_URL = '/api/schedules';
+  const MAX_ADVANCE_MONTHS = 3;
 
   async function initCalendars() {
     const calendars = Array.from(document.querySelectorAll<HTMLElement>('.booking-calendar')).filter(
@@ -202,6 +213,11 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
     const earliest = new Date();
     earliest.setHours(0, 0, 0, 0);
     earliest.setDate(earliest.getDate() + minLeadDays);
+
+    // Latest bookable date — we don't take bookings more than a few months out.
+    const latest = new Date();
+    latest.setHours(0, 0, 0, 0);
+    latest.setMonth(latest.getMonth() + MAX_ADVANCE_MONTHS);
 
     let viewYear = earliest.getFullYear();
     let viewMonth = earliest.getMonth();
@@ -267,20 +283,28 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
           const cellDate = new Date(viewYear, viewMonth, day);
           const iso = toIso(cellDate);
           const tooSoon = cellDate < earliest;
-          const unavailable = !tooSoon && !isOperating(iso, cellDate.getDay(), slugs);
+          const tooFar = cellDate > latest;
+          const unavailable = !tooSoon && !tooFar && !isOperating(iso, cellDate.getDay(), slugs);
 
           const classes = ['booking-calendar__day'];
           if (tooSoon) classes.push('is-past');
+          if (tooFar) classes.push('is-too-far');
           if (unavailable) classes.push('is-unavailable');
           if (inputEl.value === iso) classes.push('is-selected');
 
-          const selectable = !tooSoon && !unavailable;
+          const selectable = !tooSoon && !tooFar && !unavailable;
           cells.push(
             `<div class="${classes.join(' ')}" data-date="${iso}" ${selectable ? 'role="button" tabindex="0"' : 'aria-disabled="true"'}>${day}</div>`
           );
         }
 
         gridEl.innerHTML = cells.join('');
+
+        // No point letting visitors page into a month that's entirely beyond
+        // the booking window — disable "next" once we've reached the last
+        // month that still has any bookable dates in it.
+        nextBtn.disabled =
+          viewYear > latest.getFullYear() || (viewYear === latest.getFullYear() && viewMonth >= latest.getMonth());
 
         gridEl
           .querySelectorAll<HTMLElement>('.booking-calendar__day[role="button"]')
