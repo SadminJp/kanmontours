@@ -38,7 +38,7 @@ export const uiEn: UiStrings = {
     pageTitle: 'Booking Request',
     step1: '1. Please tick the box to choose a tour.',
     step2: '2. Check availability by Tour Calendar, and click the date.',
-    calendarHint: 'Click a date to select it for your booking.',
+    calendarHint: 'Click a date to select it for your booking. We accept bookings up to six months in advance.',
     loadingDates: 'Loading available dates…',
     datesUnavailable: 'Unable to load available dates. Please contact us to book.',
     selectTourFirst: 'Please select a tour to see available dates.',
