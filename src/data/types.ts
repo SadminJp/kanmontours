@@ -34,6 +34,30 @@ export interface TourContent {
   walkingDistance: string;
 }
 
+/**
+ * How a tour is stored in Netlify Blobs, as opposed to how pages consume it.
+ *
+ * `slug` is hoisted out of the per-locale halves so the two languages can never
+ * drift apart the way two parallel arrays could, and `id` is a stable handle
+ * that survives a slug rename — it's what lets a rename move the tour's booking
+ * schedule across instead of orphaning it. Neither is ever rendered.
+ */
+export type LocalizedTour = Omit<TourContent, 'slug'>;
+
+export interface TourEntry {
+  id: string;
+  slug: string;
+  previousSlugs?: string[];
+  en: LocalizedTour;
+  ja: LocalizedTour;
+}
+
+export interface TourContentDoc {
+  version: 1;
+  updatedAt: string;
+  tours: TourEntry[];
+}
+
 export interface AccessRoute {
   label: string;
   lines: string[];
