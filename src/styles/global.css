@@ -489,9 +489,10 @@ table.meta-table th {
   aspect-ratio: 4 / 3;
 }
 
-.with-image__img--portrait img {
-  aspect-ratio: 723 / 855;
-  max-width: 320px;
+/* The regional strait map — landscape artwork, sized to keep its
+   prefecture labels legible rather than cropped to a portrait box. */
+.with-image__img--map img {
+  aspect-ratio: 3 / 2;
   margin: 0 auto;
 }
 
