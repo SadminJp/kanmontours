@@ -281,24 +281,30 @@ function listEditor(data, key, kind) {
 }
 
 function singleImageEditor(data, key) {
-  var wrap = el('div', 'img-row');
+  var wrap = el('div');
+  var row = el('div', 'img-row');
+
   var img = document.createElement('img');
   img.alt = '';
   img.src = data[key] || '';
-  wrap.appendChild(img);
+  row.appendChild(img);
 
   var fields = el('div', 'img-row__fields');
-  var input = document.createElement('input');
-  input.type = 'text';
-  input.value = data[key] || '';
-  input.placeholder = '/images/tours/example.jpg';
-  input.addEventListener('input', function () {
-    data[key] = input.value.trim();
-    img.src = data[key];
-    markDirty();
-  });
-  fields.appendChild(input);
-  wrap.appendChild(fields);
+  var path = el('div', 'field__hint', data[key] || 'No photo chosen');
+  path.style.wordBreak = 'break-all';
+  fields.appendChild(path);
+  row.appendChild(fields);
+  wrap.appendChild(row);
+
+  wrap.appendChild(
+    uploadButton('Replace photo', false, function (src) {
+      data[key] = src;
+      img.src = src;
+      path.textContent = src;
+      markDirty();
+    }, contentEls.status)
+  );
+
   return wrap;
 }
 
@@ -322,16 +328,10 @@ function imageListEditor(data, key) {
 
       var fields = el('div', 'img-row__fields');
 
-      var srcInput = document.createElement('input');
-      srcInput.type = 'text';
-      srcInput.value = image.src || '';
-      srcInput.placeholder = '/images/tours/example.jpg';
-      srcInput.addEventListener('input', function () {
-        image.src = srcInput.value.trim();
-        img.src = image.src;
-        markDirty();
-      });
-      fields.appendChild(srcInput);
+      var path = el('div', 'field__hint', image.src || 'No photo');
+      path.style.wordBreak = 'break-all';
+      path.style.marginBottom = '0';
+      fields.appendChild(path);
 
       var altInput = document.createElement('input');
       altInput.type = 'text';
@@ -372,11 +372,13 @@ function imageListEditor(data, key) {
   }
 
   draw();
-  wrap.appendChild(button('add-row-btn', '+ Add photo', function () {
-    data[key].push({ src: '', alt: '' });
-    markDirty();
-    draw();
-  }));
+  wrap.appendChild(
+    uploadButton('+ Add photos', true, function (src) {
+      data[key].push({ src: src, alt: '' });
+      markDirty();
+      draw();
+    }, contentEls.status)
+  );
   return wrap;
 }
 

@@ -29,3 +29,17 @@
   from = "/api/tour-content"
   to = "/.netlify/functions/tour-content"
   status = 200
+
+# Uploading a photo from the admin page. Requires the ADMIN_PASSWORD env var.
+[[redirects]]
+  from = "/api/tour-images"
+  to = "/.netlify/functions/tour-images"
+  status = 200
+
+# Serving those photos. Public, like any other page image, and cached
+# indefinitely because an uploaded key's bytes never change. This must come
+# after the /api rule above so the upload endpoint keeps its own path.
+[[redirects]]
+  from = "/images/tours/uploaded/*"
+  to = "/.netlify/functions/tour-images?key=:splat"
+  status = 200
