@@ -1,5 +1,5 @@
 import type { TourContent, TourContentDoc } from './types.js';
-import { CONTENT_KEY, ON_NETLIFY, openStore } from './blobStore.js';
+import { CONTENT_KEY, ON_NETLIFY, STORE_NAME, openStore } from './blobStore.js';
 import { assertValidDoc, buildSeedDoc, flattenLocale } from './tourSeed.js';
 
 /**
@@ -21,10 +21,15 @@ async function loadTourDoc(): Promise<TourContentDoc> {
     return doc;
   }
 
-  const store = openStore();
+  const { store, how, siteIdSource, hasToken } = openStore();
+
+  // Logged on every build so an auth failure is diagnosable from the log alone,
+  // rather than surfacing as a bare 401. No secret values are logged.
+  const auth = `store="${STORE_NAME}" auth=${how} siteId=${siteIdSource ?? 'MISSING'} token=${hasToken ? 'present' : 'MISSING'}`;
+
   if (!store) {
     const doc = buildSeedDoc();
-    console.log(`[tours] no Blobs credentials — using seed files (${doc.tours.length} tours)`);
+    console.log(`[tours] no Blobs credentials (${auth}) — using seed files (${doc.tours.length} tours)`);
     return doc;
   }
 
@@ -33,14 +38,19 @@ async function loadTourDoc(): Promise<TourContentDoc> {
     stored = await store.get(CONTENT_KEY, { type: 'json' });
   } catch (error) {
     if (ON_NETLIFY) {
+      const hint = !siteIdSource
+        ? 'No site ID was found: set NETLIFY_SITE_ID to the value of Site configuration -> General -> Site details -> API ID.'
+        : !hasToken
+          ? 'No API token was found: set NETLIFY_API_TOKEN, scoped to Builds.'
+          : 'A site ID and token were both found, so the credentials were rejected — check the token is a valid personal access token with access to this site.';
       throw new Error(
-        `[tours] could not read tour content from Blobs: ${(error as Error).message}. ` +
-          'Refusing to build with stale seed content. Check that SITE_ID and NETLIFY_API_TOKEN ' +
-          'are scoped to Builds, or set TOURS_FORCE_SEED=1 to deliberately build from the repo files.'
+        `[tours] could not read tour content from Blobs: ${(error as Error).message}. ${auth}. ${hint} ` +
+          'Refusing to build with stale seed content, which would silently overwrite saved edits. ' +
+          'Set TOURS_FORCE_SEED=1 to deliberately build from the repo files instead.'
       );
     }
     const doc = buildSeedDoc();
-    console.log(`[tours] Blobs unreachable locally — using seed files (${doc.tours.length} tours)`);
+    console.log(`[tours] Blobs unreachable locally (${auth}) — using seed files (${doc.tours.length} tours)`);
     return doc;
   }
 
@@ -55,7 +65,7 @@ async function loadTourDoc(): Promise<TourContentDoc> {
   // A document that exists but is invalid is never silently replaced with seed
   // data — that would hide the client's content behind stale copy.
   assertValidDoc(stored);
-  console.log(`[tours] loaded ${stored.tours.length} tours from Blobs (updated ${stored.updatedAt})`);
+  console.log(`[tours] loaded ${stored.tours.length} tours from Blobs — ${auth} (updated ${stored.updatedAt})`);
   return stored;
 }
 

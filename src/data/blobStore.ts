@@ -18,25 +18,53 @@ export const PUBLISH_KEY = 'tour-content-publish';
 /** True when running inside a Netlify build or function, not a local machine. */
 export const ON_NETLIFY = process.env.NETLIFY === 'true';
 
+export interface StoreHandle {
+  store: Store | null;
+  /** How credentials were obtained — reported in logs to make 401s diagnosable. */
+  how: 'explicit' | 'injected-context' | 'unavailable';
+  siteIdSource: string | null;
+  hasToken: boolean;
+}
+
 /**
- * Opens the Blobs store, or returns null when no credentials are available.
+ * Opens the Blobs store, reporting how it authenticated.
+ *
+ * A deployed function gets credentials injected via NETLIFY_BLOBS_CONTEXT, but
+ * a build does not, so it has to pass siteID/token explicitly. Distinguishing
+ * the two paths matters: an auth failure means something different depending on
+ * which one was taken, and without this the only symptom is a bare 401.
  *
  * getStore() throws synchronously on missing credentials rather than failing on
- * the first read, so the try has to wrap the call itself. Functions get their
- * credentials injected via NETLIFY_BLOBS_CONTEXT; a build does not reliably, so
- * we pass siteID/token explicitly and let the injected context win when present.
+ * the first read, so the try has to wrap the call itself.
  */
-export function openStore(): Store | null {
+export function openStore(): StoreHandle {
+  const siteIdSource = process.env.SITE_ID
+    ? 'SITE_ID'
+    : process.env.NETLIFY_SITE_ID
+      ? 'NETLIFY_SITE_ID'
+      : null;
   const siteID = process.env.SITE_ID || process.env.NETLIFY_SITE_ID;
   const token = process.env.NETLIFY_API_TOKEN || process.env.NETLIFY_AUTH_TOKEN;
+  const hasToken = Boolean(token);
+
+  if (siteID && token) {
+    try {
+      return {
+        // Strong consistency because Publish fires a build within seconds of a
+        // Save — an eventually-consistent read could rebuild the old content.
+        store: getStore({ name: STORE_NAME, siteID, token, consistency: 'strong' }),
+        how: 'explicit',
+        siteIdSource,
+        hasToken,
+      };
+    } catch {
+      return { store: null, how: 'unavailable', siteIdSource, hasToken };
+    }
+  }
 
   try {
-    return siteID && token
-      ? // Strong consistency because Publish fires a build within seconds of a
-        // Save — an eventually-consistent read could rebuild the old content.
-        getStore({ name: STORE_NAME, siteID, token, consistency: 'strong' })
-      : getStore(STORE_NAME);
+    return { store: getStore(STORE_NAME), how: 'injected-context', siteIdSource, hasToken };
   } catch {
-    return null;
+    return { store: null, how: 'unavailable', siteIdSource, hasToken };
   }
 }
