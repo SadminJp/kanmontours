@@ -468,8 +468,12 @@ table.meta-table th {
     grid-template-columns: 3fr 2fr;
   }
 
+  /* Map beside its description: equal halves, both top-aligned (inherits
+     align-items: start). The map keeps its own 3:2 proportions rather than
+     being stretched to the text's height — matching heights exactly would
+     crop the map's width and cut off Hiroshima and Nagasaki. */
   .with-image--flip {
-    grid-template-columns: 2fr 3fr;
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -477,6 +481,12 @@ table.meta-table th {
   width: 100%;
   border-radius: var(--radius);
   object-fit: cover;
+}
+
+/* Drop the leading paragraph margin so the first line of copy sits flush
+   with the top edge of the image beside it. */
+.with-image > div > p:first-child {
+  margin-top: 0;
 }
 
 .with-image__img--square img {
@@ -493,6 +503,7 @@ table.meta-table th {
    prefecture labels legible rather than cropped to a portrait box. */
 .with-image__img--map img {
   aspect-ratio: 3 / 2;
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -524,16 +535,23 @@ table.meta-table th {
   object-fit: cover;
 }
 
-/* About Us guide photos: smaller, left-aligned, wrap on narrow screens */
+/* About Us guide photos: span the full width, four across on desktop
+   and two-up on narrow screens */
 .about-gallery {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   margin-top: 1.5rem;
 }
 
+@media (min-width: 768px) {
+  .about-gallery {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 .about-gallery img {
-  width: 200px;
+  width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border-radius: var(--radius);
