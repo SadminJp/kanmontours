@@ -1,6 +1,6 @@
 import { getStore } from '@netlify/blobs';
 import type { Context } from '@netlify/functions';
-import { CONTENT_KEY, STORE_NAME, json, verifyAdminPassword } from '../lib/admin.js';
+import { CONTENT_KEY, PUBLISH_KEY, STORE_NAME, json, verifyAdminPassword } from '../lib/admin.js';
 import { buildSeedDoc } from '../../src/data/tourSeed.js';
 import type { TourContentDoc } from '../../src/data/types.js';
 import { MAX_DOC_BYTES, ValidationError, normalizeDoc } from '../lib/tourContent.js';
@@ -14,11 +14,72 @@ import { MAX_DOC_BYTES, ValidationError, normalizeDoc } from '../lib/tourContent
  *        Self-seeds from the committed TS files on first read.
  * POST — admin only, password in the body. Replaces the whole document.
  *
+ * POST ?action=publish — triggers a site rebuild via the Netlify build hook.
+ *        Publishing is separate from saving because tour pages are static HTML:
+ *        a save only updates the stored document, and the site keeps serving the
+ *        previous build until a publish rebuilds it. Doing both on every save
+ *        would spend a build per keystroke-save and leave the client waiting
+ *        minutes to see anything.
+ *
  * Validation here REJECTS rather than failing closed, which is the opposite of
  * the schedules endpoint. There, bad input collapsing to "nothing bookable" is
  * safe. Here the equivalent would be erasing the client's website copy, so a
  * malformed save is refused outright with a message naming the offending field.
  */
+
+interface PublishState {
+  publishedAt: string;
+  requestedAt: string;
+}
+
+/** Rapid double-clicks shouldn't each cost a build. */
+const PUBLISH_COOLDOWN_MS = 60 * 1000;
+
+async function readPublishState(store: ReturnType<typeof getStore>): Promise<PublishState | null> {
+  return (await store.get(PUBLISH_KEY, { type: 'json' })) as PublishState | null;
+}
+
+/**
+ * Fires the Netlify build hook. The hook URL is read from the environment and
+ * never sent to the browser: anyone holding it can spend the site's build
+ * minutes at will.
+ */
+async function publish(store: ReturnType<typeof getStore>): Promise<Response> {
+  const hookUrl = process.env.NETLIFY_BUILD_HOOK_URL;
+  if (!hookUrl) {
+    return json(
+      { error: 'Publishing is not set up yet. A build hook needs to be added as NETLIFY_BUILD_HOOK_URL.' },
+      500
+    );
+  }
+
+  const previous = await readPublishState(store);
+  if (previous && Date.now() - Date.parse(previous.requestedAt) < PUBLISH_COOLDOWN_MS) {
+    return json({ error: 'A publish is already in progress. Please wait a moment and check the website.' }, 429);
+  }
+
+  const current = (await store.get(CONTENT_KEY, { type: 'json' })) as TourContentDoc | null;
+  if (!current) {
+    return json({ error: 'There is nothing to publish yet.' }, 400);
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(hookUrl, { method: 'POST' });
+  } catch (error) {
+    return json({ error: `Could not reach Netlify to start the build: ${(error as Error).message}` }, 502);
+  }
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    return json({ error: `Netlify refused to start the build (${response.status})${detail ? `: ${detail}` : ''}` }, 502);
+  }
+
+  // Stamped with the document's own updatedAt rather than "now", so the admin
+  // can tell whether what is live matches what is saved.
+  const state: PublishState = { publishedAt: current.updatedAt, requestedAt: new Date().toISOString() };
+  await store.setJSON(PUBLISH_KEY, state);
+  return json({ ok: true, publishedAt: state.publishedAt });
+}
 
 export default async (req: Request, _context: Context): Promise<Response> => {
   const store = getStore(STORE_NAME);
@@ -36,7 +97,8 @@ export default async (req: Request, _context: Context): Promise<Response> => {
       current.updatedAt = new Date().toISOString();
       await store.setJSON(CONTENT_KEY, current);
     }
-    return json(current);
+    const publishState = await readPublishState(store);
+    return json({ ...current, publishedAt: publishState?.publishedAt ?? null });
   }
 
   if (req.method === 'POST') {
@@ -59,6 +121,10 @@ export default async (req: Request, _context: Context): Promise<Response> => {
 
     if (!verifyAdminPassword(password)) {
       return json({ error: 'Incorrect password.' }, 401);
+    }
+
+    if (new URL(req.url).searchParams.get('action') === 'publish') {
+      return publish(store);
     }
 
     // Password but no data is the admin page's login check.

@@ -4,260 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>Kanmon Tours — Schedule Admin</title>
-    <style>
-      :root {
-        --color-orange: #ff6600;
-        --color-orange-dark: #e65c00;
-        --color-green: #00b050;
-        --color-green-dark: #008a40;
-        --color-navy: #173b46;
-        --color-blue: #4bacc6;
-        --color-blue-dark: #1f7e96;
-        --color-bg-alt: #f6f3ec;
-        --color-text: #2c2925;
-        --color-text-muted: #6a655d;
-        --color-border: #e5e0d6;
-        --radius: 6px;
-      }
-
-      * { box-sizing: border-box; }
-
-      body {
-        font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
-        color: var(--color-text);
-        background: var(--color-bg-alt);
-        margin: 0;
-        padding: 1.5rem;
-      }
-
-      main {
-        max-width: 720px;
-        margin: 0 auto;
-      }
-
-      h1 {
-        color: var(--color-navy);
-        font-size: 1.6rem;
-        margin-bottom: 0.25rem;
-      }
-
-      .intro {
-        color: var(--color-text-muted);
-        margin-top: 0;
-        margin-bottom: 1.5rem;
-      }
-
-      .card {
-        background: #ffffff;
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius);
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 1.25rem;
-      }
-
-      .card h2 {
-        color: var(--color-navy);
-        font-size: 1.15rem;
-        margin-top: 0;
-      }
-
-      fieldset {
-        border: none;
-        padding: 0;
-        margin: 0 0 1rem;
-      }
-
-      legend {
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: var(--color-text);
-        margin-bottom: 0.5rem;
-        padding: 0;
-      }
-
-      .weekdays {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.4rem 1rem;
-      }
-
-      .weekdays label {
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-        font-size: 0.9rem;
-        cursor: pointer;
-      }
-
-      .date-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .date-row {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-      }
-
-      .date-row input[type='date'] {
-        font: inherit;
-        padding: 0.35rem 0.5rem;
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius);
-      }
-
-      .date-row button,
-      .add-date-btn {
-        font: inherit;
-        font-size: 0.82rem;
-        border: 1px solid var(--color-border);
-        background: var(--color-bg-alt);
-        border-radius: var(--radius);
-        padding: 0.3rem 0.6rem;
-        cursor: pointer;
-        color: var(--color-text);
-      }
-
-      .date-row button:hover,
-      .add-date-btn:hover {
-        background: #ece7da;
-      }
-
-      .lead-days {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-      }
-
-      .lead-days input {
-        font: inherit;
-        width: 5rem;
-        padding: 0.4rem 0.6rem;
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius);
-      }
-
-      .email-field {
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-      }
-
-      .email-field label {
-        font-weight: 600;
-        font-size: 0.9rem;
-      }
-
-      .email-field input {
-        font: inherit;
-        max-width: 340px;
-        padding: 0.4rem 0.6rem;
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius);
-      }
-
-      .save-bar {
-        position: sticky;
-        bottom: 0;
-        background: var(--color-bg-alt);
-        padding-top: 1rem;
-        border-top: 1px solid var(--color-border);
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-
-      .save-row {
-        display: flex;
-        gap: 0.75rem;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-
-      .save-row input[type='password'] {
-        font: inherit;
-        padding: 0.5rem 0.7rem;
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius);
-        flex: 1;
-        min-width: 180px;
-      }
-
-      button.primary {
-        font: inherit;
-        font-weight: 600;
-        background: var(--color-orange);
-        color: #ffffff;
-        border: none;
-        border-radius: var(--radius);
-        padding: 0.6rem 1.4rem;
-        cursor: pointer;
-      }
-
-      button.primary:hover {
-        background: var(--color-orange-dark);
-      }
-
-      button.primary:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-
-      button.link {
-        font: inherit;
-        font-size: 0.85rem;
-        color: var(--color-text-muted);
-        background: none;
-        border: none;
-        text-decoration: underline;
-        cursor: pointer;
-        padding: 0.6rem 0.25rem;
-      }
-
-      button.link:hover {
-        color: var(--color-text);
-      }
-
-      .status {
-        border-radius: var(--radius);
-        padding: 0.75rem 1rem;
-        font-weight: 600;
-        display: none;
-      }
-
-      .status.visible { display: block; }
-
-      /* The hidden attribute must always win, even over a leftover .visible
-         class from an earlier setStatus() call on the same element. */
-      .status[hidden] { display: none !important; }
-
-      .status--success {
-        background: rgba(0, 176, 80, 0.1);
-        border: 1px solid var(--color-green);
-        color: var(--color-green-dark);
-      }
-
-      .status--error {
-        background: rgba(255, 102, 0, 0.1);
-        border: 1px solid var(--color-orange);
-        color: var(--color-orange-dark);
-      }
-
-      .status--loading {
-        background: #eef2f4;
-        border: 1px solid var(--color-border);
-        color: var(--color-text-muted);
-      }
-    </style>
+    <title>Kanmon Tours — Admin</title>
+    <link rel="stylesheet" href="admin.css" />
   </head>
   <body>
-    <main>
-      <h1>Tour Schedule Admin</h1>
-      <p class="intro">Set which days each tour runs. Changes go live within a minute of saving.</p>
+    <main id="main">
+      <h1>Kanmon Tours Admin</h1>
+      <p class="intro">Set the days each tour runs, and edit the wording and photos on the tour pages.</p>
 
       <div class="card" id="login-card">
         <h2>Admin Login</h2>
@@ -270,401 +23,70 @@
         </form>
       </div>
 
-      <p id="load-status" class="status status--loading" hidden>Loading current schedule…</p>
+      <p id="load-status" class="status status--loading" hidden>Loading…</p>
 
-      <form id="schedule-form" hidden>
-        <div class="card">
-          <h2>Booking lead time</h2>
-          <div class="lead-days">
-            <label for="min-lead-days">Minimum days' notice required</label>
-            <input type="number" id="min-lead-days" name="minLeadDays" min="0" max="60" required />
-          </div>
+      <div id="workspace" hidden>
+        <div class="tabs" id="main-tabs">
+          <button type="button" class="tab is-active" data-panel="panel-schedule">Schedule &amp; Settings</button>
+          <button type="button" class="tab" data-panel="panel-content">Tour Content</button>
         </div>
 
-        <div class="card">
-          <h2>Notification Email</h2>
-          <div class="email-field">
-            <label for="notification-email">Send booking and inquiry emails to</label>
-            <input type="email" id="notification-email" name="notificationEmail" placeholder="you@example.com" required />
+        <!-- Schedule and notification settings: these go live as soon as they
+             are saved, because the booking calendar reads them at runtime. -->
+        <form id="schedule-form" data-panel-body="panel-schedule">
+          <div class="card">
+            <h2>Booking lead time</h2>
+            <div class="lead-days">
+              <label for="min-lead-days">Minimum days' notice required</label>
+              <input type="number" id="min-lead-days" name="minLeadDays" min="0" max="60" required />
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Notification Email</h2>
+            <div class="email-field">
+              <label for="notification-email">Send booking and inquiry emails to</label>
+              <input type="email" id="notification-email" name="notificationEmail" placeholder="you@example.com" required />
+            </div>
+          </div>
+
+          <div id="tours-container"></div>
+
+          <div class="save-bar">
+            <p id="save-status" class="status"></p>
+            <div class="save-row">
+              <button type="submit" class="primary" id="save-btn">Save Changes</button>
+              <button type="button" class="link" id="logout-btn">Log out</button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Tour content: saved instantly, but only reaches the website when
+             published, because the tour pages are built as static HTML. -->
+        <div data-panel-body="panel-content" hidden>
+          <p class="publish-note" id="content-intro">
+            Wording and photos are saved straight away, but the website is only updated when you
+            press <strong>Publish to website</strong>. Schedule and email changes above go live immediately.
+          </p>
+
+          <div class="tabs tabs--tours" id="tour-tabs"></div>
+          <div id="tour-panels"></div>
+
+          <div class="save-bar">
+            <p id="content-status" class="status"></p>
+            <div class="save-row">
+              <button type="button" class="primary" id="content-save-btn">Save Changes</button>
+              <button type="button" class="secondary" id="publish-btn">Publish to website</button>
+              <button type="button" class="link" id="content-logout-btn">Log out</button>
+            </div>
           </div>
         </div>
-
-        <div id="tours-container"></div>
-
-        <div class="save-bar">
-          <p id="save-status" class="status"></p>
-          <div class="save-row">
-            <button type="submit" class="primary" id="save-btn">Save Changes</button>
-            <button type="button" class="link" id="logout-btn">Log out</button>
-          </div>
-        </div>
-      </form>
+      </div>
     </main>
 
-    <script>
-      var TOURS = [
-        { slug: 'moji-port-town', label: 'Tour-1 — Moji Port Town' },
-        { slug: 'kokura-castle', label: 'Tour-2 — Kokura Castle' },
-        { slug: 'toto-museum', label: 'Tour-3 — TOTO Museum' },
-        { slug: 'shimonoseki-castle-town', label: 'Tour-4 — Shimonoseki Castle Town' },
-      ];
-
-      var WEEKDAYS = [
-        { value: 0, label: 'Sun' },
-        { value: 1, label: 'Mon' },
-        { value: 2, label: 'Tue' },
-        { value: 3, label: 'Wed' },
-        { value: 4, label: 'Thu' },
-        { value: 5, label: 'Fri' },
-        { value: 6, label: 'Sat' },
-      ];
-
-      var API_URL = '/api/schedules';
-      var SETTINGS_URL = '/api/settings';
-      var SESSION_KEY = 'kanmonAdminPassword';
-
-      var loginCard = document.getElementById('login-card');
-      var loginForm = document.getElementById('login-form');
-      var loginStatus = document.getElementById('login-status');
-      var form = document.getElementById('schedule-form');
-      var loadStatus = document.getElementById('load-status');
-      var saveStatus = document.getElementById('save-status');
-      var toursContainer = document.getElementById('tours-container');
-      var saveBtn = document.getElementById('save-btn');
-
-      // sessionStorage: remembered for this browser tab only, cleared when the
-      // tab closes — a reasonable "logged in" lifetime without needing a real
-      // server-side session, which this single-shared-password model doesn't have.
-      function getSessionPassword() {
-        try { return sessionStorage.getItem(SESSION_KEY); } catch (e) { return null; }
-      }
-      function setSessionPassword(pw) {
-        try { sessionStorage.setItem(SESSION_KEY, pw); } catch (e) {}
-      }
-      function clearSessionPassword() {
-        try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
-      }
-
-      // A request with a password and no data verifies the password without
-      // saving anything — see netlify/functions/schedules.ts.
-      function verifyPassword(password) {
-        return fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: password }),
-        }).then(function (response) {
-          return response.json().then(function (body) {
-            if (!response.ok) throw new Error(body.error || 'Incorrect password.');
-          });
-        });
-      }
-
-      function setStatus(el, message, kind) {
-        el.textContent = message;
-        el.className = 'status visible' + (kind ? ' status--' + kind : '');
-      }
-
-      function clearStatus(el) {
-        el.textContent = '';
-        el.className = 'status';
-      }
-
-      // --- Building the per-tour form sections ---
-
-      function buildDateRow(container, iso) {
-        var row = document.createElement('div');
-        row.className = 'date-row';
-
-        var input = document.createElement('input');
-        input.type = 'date';
-        input.value = iso || '';
-        row.appendChild(input);
-
-        var remove = document.createElement('button');
-        remove.type = 'button';
-        remove.textContent = 'Remove';
-        remove.addEventListener('click', function () {
-          row.remove();
-        });
-        row.appendChild(remove);
-
-        container.appendChild(row);
-      }
-
-      function buildDateList(labelText, hint) {
-        var wrap = document.createElement('div');
-
-        var legend = document.createElement('div');
-        legend.textContent = labelText;
-        legend.style.fontWeight = '600';
-        legend.style.fontSize = '0.9rem';
-        legend.style.marginBottom = '0.35rem';
-        wrap.appendChild(legend);
-
-        if (hint) {
-          var hintEl = document.createElement('div');
-          hintEl.textContent = hint;
-          hintEl.style.fontSize = '0.8rem';
-          hintEl.style.color = 'var(--color-text-muted)';
-          hintEl.style.marginBottom = '0.4rem';
-          wrap.appendChild(hintEl);
-        }
-
-        var list = document.createElement('div');
-        list.className = 'date-list';
-        wrap.appendChild(list);
-
-        var addBtn = document.createElement('button');
-        addBtn.type = 'button';
-        addBtn.className = 'add-date-btn';
-        addBtn.textContent = '+ Add date';
-        addBtn.addEventListener('click', function () {
-          buildDateRow(list, '');
-        });
-        wrap.appendChild(addBtn);
-
-        return { wrap: wrap, list: list };
-      }
-
-      function buildTourSection(tour) {
-        var card = document.createElement('div');
-        card.className = 'card';
-        card.dataset.slug = tour.slug;
-
-        var h2 = document.createElement('h2');
-        h2.textContent = tour.label;
-        card.appendChild(h2);
-
-        var weekdaysField = document.createElement('fieldset');
-        var legend = document.createElement('legend');
-        legend.textContent = 'Runs on these days';
-        weekdaysField.appendChild(legend);
-
-        var weekdaysWrap = document.createElement('div');
-        weekdaysWrap.className = 'weekdays';
-        WEEKDAYS.forEach(function (day) {
-          var label = document.createElement('label');
-          var checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.value = String(day.value);
-          checkbox.dataset.weekday = String(day.value);
-          label.appendChild(checkbox);
-          label.appendChild(document.createTextNode(day.label));
-          weekdaysWrap.appendChild(label);
-        });
-        weekdaysField.appendChild(weekdaysWrap);
-        card.appendChild(weekdaysField);
-
-        var blackout = buildDateList('Cancelled dates', 'This tour will NOT run on these dates, even on a matching weekday.');
-        blackout.list.dataset.role = 'blackoutDates';
-        card.appendChild(blackout.wrap);
-
-        var extra = buildDateList('Extra dates', 'This tour WILL run on these dates, outside its usual weekdays.');
-        extra.list.dataset.role = 'extraDates';
-        card.appendChild(extra.wrap);
-
-        return card;
-      }
-
-      TOURS.forEach(function (tour) {
-        toursContainer.appendChild(buildTourSection(tour));
-      });
-
-      // --- Populating from loaded data ---
-
-      function populateForm(data) {
-        document.getElementById('min-lead-days').value = data.minLeadDays;
-
-        TOURS.forEach(function (tour) {
-          var card = toursContainer.querySelector('[data-slug="' + tour.slug + '"]');
-          var schedule = (data.tours && data.tours[tour.slug]) || { weekdays: [], blackoutDates: [], extraDates: [] };
-
-          card.querySelectorAll('[data-weekday]').forEach(function (checkbox) {
-            checkbox.checked = schedule.weekdays.indexOf(Number(checkbox.dataset.weekday)) !== -1;
-          });
-
-          ['blackoutDates', 'extraDates'].forEach(function (role) {
-            var list = card.querySelector('[data-role="' + role + '"]');
-            list.innerHTML = '';
-            (schedule[role] || []).forEach(function (iso) {
-              buildDateRow(list, iso);
-            });
-          });
-        });
-      }
-
-      // --- Collecting the form back into the API shape ---
-
-      function collectFormData() {
-        var data = {
-          minLeadDays: Number(document.getElementById('min-lead-days').value),
-          tours: {},
-        };
-
-        TOURS.forEach(function (tour) {
-          var card = toursContainer.querySelector('[data-slug="' + tour.slug + '"]');
-          var weekdays = Array.prototype.slice
-            .call(card.querySelectorAll('[data-weekday]:checked'))
-            .map(function (checkbox) { return Number(checkbox.dataset.weekday); });
-
-          var readDates = function (role) {
-            return Array.prototype.slice
-              .call(card.querySelectorAll('[data-role="' + role + '"] input[type="date"]'))
-              .map(function (input) { return input.value; })
-              .filter(function (value) { return value; });
-          };
-
-          data.tours[tour.slug] = {
-            weekdays: weekdays,
-            blackoutDates: readDates('blackoutDates'),
-            extraDates: readDates('extraDates'),
-          };
-        });
-
-        return data;
-      }
-
-      // --- Login / session flow ---
-
-      function showLogin(message) {
-        clearSessionPassword();
-        loginCard.hidden = false;
-        loadStatus.hidden = true;
-        form.hidden = true;
-        document.getElementById('login-password').value = '';
-        if (message) {
-          setStatus(loginStatus, message, 'error');
-        } else {
-          clearStatus(loginStatus);
-        }
-      }
-
-      function loadSchedule() {
-        loginCard.hidden = true;
-        setStatus(loadStatus, 'Loading current schedule…', 'loading');
-        loadStatus.hidden = false;
-
-        var password = getSessionPassword();
-
-        var scheduleFetch = fetch(API_URL).then(function (response) {
-          if (!response.ok) throw new Error('Request failed: ' + response.status);
-          return response.json();
-        });
-
-        var settingsFetch = fetch(SETTINGS_URL, { headers: { 'X-Admin-Password': password } }).then(function (response) {
-          if (!response.ok) throw new Error('Request failed: ' + response.status);
-          return response.json();
-        });
-
-        Promise.all([scheduleFetch, settingsFetch])
-          .then(function (results) {
-            populateForm(results[0]);
-            document.getElementById('notification-email').value = results[1].notificationEmail || '';
-            loadStatus.hidden = true;
-            form.hidden = false;
-          })
-          .catch(function () {
-            setStatus(loadStatus, 'Could not load the current schedule. Please reload this page to try again.', 'error');
-          });
-      }
-
-      // Returning with a remembered password from earlier in this tab session:
-      // re-check it quietly (it may have been changed on the server since) and
-      // either go straight to the form or fall back to the login screen.
-      var remembered = getSessionPassword();
-      if (remembered) {
-        verifyPassword(remembered).then(loadSchedule).catch(function () {
-          showLogin('Your session has expired. Please log in again.');
-        });
-      } else {
-        showLogin();
-      }
-
-      loginForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        var password = document.getElementById('login-password').value;
-        var loginBtn = document.getElementById('login-btn');
-        loginBtn.disabled = true;
-        setStatus(loginStatus, 'Checking…', 'loading');
-
-        verifyPassword(password)
-          .then(function () {
-            setSessionPassword(password);
-            loadSchedule();
-          })
-          .catch(function (error) {
-            setStatus(loginStatus, error.message || 'Incorrect password.', 'error');
-          })
-          .finally(function () {
-            loginBtn.disabled = false;
-          });
-      });
-
-      document.getElementById('logout-btn').addEventListener('click', function () {
-        showLogin();
-      });
-
-      // --- Save ---
-
-      form.addEventListener('submit', function (event) {
-        event.preventDefault();
-        var password = getSessionPassword();
-        if (!password) {
-          showLogin('Please log in again.');
-          return;
-        }
-
-        saveBtn.disabled = true;
-        setStatus(saveStatus, 'Saving…', 'loading');
-
-        var scheduleSave = fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: password, data: collectFormData() }),
-        }).then(function (response) {
-          return response.json().then(function (body) {
-            if (!response.ok) throw new Error(body.error || 'Could not save the tour schedule.');
-            return body;
-          });
-        });
-
-        var settingsSave = fetch(SETTINGS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            password: password,
-            notificationEmail: document.getElementById('notification-email').value,
-          }),
-        }).then(function (response) {
-          return response.json().then(function (body) {
-            if (!response.ok) throw new Error(body.error || 'Could not save the notification email.');
-            return body;
-          });
-        });
-
-        Promise.all([scheduleSave, settingsSave])
-          .then(function (results) {
-            populateForm(results[0].data);
-            document.getElementById('notification-email').value = results[1].data.notificationEmail;
-
-            if (results[1].warning) {
-              setStatus(saveStatus, 'Schedule saved. ' + results[1].warning, 'error');
-            } else {
-              setStatus(saveStatus, 'Saved. Changes are live.', 'success');
-            }
-          })
-          .catch(function (error) {
-            // The password may have been rotated server-side mid-session.
-            if (String(error.message).indexOf('Incorrect password') !== -1) {
-              showLogin('Your session has expired. Please log in again.');
-            } else {
-              setStatus(saveStatus, error.message || 'Something went wrong. Please try again.', 'error');
-            }
-          })
-          .finally(function () {
-            saveBtn.disabled = false;
-          });
-      });
-    </script>
+    <script src="admin-core.js"></script>
+    <script src="admin-schedule.js"></script>
+    <script src="admin-content.js"></script>
+    <script src="admin-boot.js"></script>
   </body>
 </html>

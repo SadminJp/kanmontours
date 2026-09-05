@@ -1,0 +1,526 @@
+:root {
+  --color-orange: #ff6600;
+  --color-orange-dark: #e65c00;
+  --color-green: #00b050;
+  --color-green-dark: #008a40;
+  --color-navy: #173b46;
+  --color-blue: #4bacc6;
+  --color-blue-dark: #1f7e96;
+  --color-bg-alt: #f6f3ec;
+  --color-text: #2c2925;
+  --color-text-muted: #6a655d;
+  --color-border: #e5e0d6;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  color: var(--color-text);
+  background: var(--color-bg-alt);
+  margin: 0;
+  padding: 1.5rem;
+}
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* The content editor needs far more width than the schedule form, so the
+   wrapper widens once the content tab is active. */
+main.is-wide {
+  max-width: 1180px;
+}
+
+h1 {
+  color: var(--color-navy);
+  font-size: 1.6rem;
+  margin-bottom: 0.25rem;
+}
+
+.intro {
+  color: var(--color-text-muted);
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.card h2 {
+  color: var(--color-navy);
+  font-size: 1.15rem;
+  margin-top: 0;
+}
+
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+legend {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+  padding: 0;
+}
+
+.weekdays {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+}
+
+.weekdays label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.date-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.date-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.date-row input[type='date'] {
+  font: inherit;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.date-row button,
+.add-date-btn {
+  font: inherit;
+  font-size: 0.82rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-alt);
+  border-radius: var(--radius);
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.date-row button:hover,
+.add-date-btn:hover {
+  background: #ece7da;
+}
+
+.lead-days {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.lead-days input {
+  font: inherit;
+  width: 5rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.email-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.email-field label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.email-field input {
+  font: inherit;
+  max-width: 340px;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.save-bar {
+  position: sticky;
+  bottom: 0;
+  background: var(--color-bg-alt);
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.save-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.save-row input[type='password'] {
+  font: inherit;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  flex: 1;
+  min-width: 180px;
+}
+
+button.primary {
+  font: inherit;
+  font-weight: 600;
+  background: var(--color-orange);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.6rem 1.4rem;
+  cursor: pointer;
+}
+
+button.primary:hover { background: var(--color-orange-dark); }
+
+button.primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  font: inherit;
+  font-weight: 600;
+  background: #ffffff;
+  color: var(--color-blue-dark);
+  border: 1px solid var(--color-blue);
+  border-radius: var(--radius);
+  padding: 0.6rem 1.4rem;
+  cursor: pointer;
+}
+
+button.secondary:hover { background: #eef7fa; }
+
+button.secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.link {
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.6rem 0.25rem;
+}
+
+button.link:hover { color: var(--color-text); }
+
+button.danger {
+  font: inherit;
+  font-size: 0.82rem;
+  background: #ffffff;
+  color: #b3261e;
+  border: 1px solid #e8b4b0;
+  border-radius: var(--radius);
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+}
+
+button.danger:hover { background: #fdf1f0; }
+
+.status {
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  display: none;
+}
+
+.status.visible { display: block; }
+
+/* The hidden attribute must always win, even over a leftover .visible
+   class from an earlier setStatus() call on the same element. */
+.status[hidden] { display: none !important; }
+
+.status--success {
+  background: rgba(0, 176, 80, 0.1);
+  border: 1px solid var(--color-green);
+  color: var(--color-green-dark);
+}
+
+.status--error {
+  background: rgba(255, 102, 0, 0.1);
+  border: 1px solid var(--color-orange);
+  color: var(--color-orange-dark);
+}
+
+.status--loading {
+  background: #eef2f4;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+/* --- Tabs --- */
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab {
+  font: inherit;
+  font-weight: 600;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  margin-bottom: -1px;
+}
+
+.tab:hover { color: var(--color-text); }
+
+.tab.is-active {
+  color: var(--color-navy);
+  border-bottom-color: var(--color-orange);
+}
+
+.tabs--tours {
+  border-bottom: none;
+  margin-bottom: 1rem;
+}
+
+.tabs--tours .tab {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #ffffff;
+  font-size: 0.88rem;
+  padding: 0.45rem 0.8rem;
+  margin-bottom: 0;
+}
+
+.tabs--tours .tab.is-active {
+  background: var(--color-navy);
+  border-color: var(--color-navy);
+  color: #ffffff;
+}
+
+/* --- Content editor --- */
+
+.field {
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.field:first-of-type { border-top: none; }
+
+.field__label {
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin-bottom: 0.15rem;
+}
+
+.field__hint {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+/* English and Japanese sit side by side so a missing or out-of-sync
+   translation is obvious at a glance. */
+.field__cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 900px) {
+  .field__cols { grid-template-columns: 1fr 1fr; }
+}
+
+.field__col-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.field input[type='text'],
+.field textarea {
+  font: inherit;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #ffffff;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+  line-height: 1.5;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: 2px solid var(--color-blue);
+  outline-offset: -1px;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.row {
+  display: flex;
+  gap: 0.35rem;
+  align-items: flex-start;
+}
+
+.row__body { flex: 1; }
+
+.row__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.row__btn {
+  font: inherit;
+  font-size: 0.72rem;
+  line-height: 1;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-alt);
+  border-radius: var(--radius);
+  padding: 0.25rem 0.4rem;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.row__btn:hover:not(:disabled) { background: #ece7da; }
+
+.row__btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.add-row-btn {
+  font: inherit;
+  font-size: 0.82rem;
+  border: 1px dashed var(--color-border);
+  background: none;
+  border-radius: var(--radius);
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  margin-top: 0.4rem;
+  align-self: flex-start;
+}
+
+.add-row-btn:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
+.img-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.45rem;
+  background: #fdfcfa;
+}
+
+.img-row img {
+  width: 72px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: var(--color-bg-alt);
+  flex-shrink: 0;
+}
+
+.img-row__fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.img-row__fields input { font-size: 0.85rem; }
+
+.slug-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.slug-row .field__col-label { margin-bottom: 0.25rem; }
+
+.slug-row input {
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  min-width: 260px;
+}
+
+.warn {
+  background: rgba(255, 102, 0, 0.08);
+  border: 1px solid var(--color-orange);
+  color: var(--color-orange-dark);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+
+.danger-zone {
+  border-top: 1px solid var(--color-border);
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.danger-zone p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.publish-note {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
