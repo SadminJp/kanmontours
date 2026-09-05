@@ -5,14 +5,27 @@ import { assertValidDoc, buildSeedDoc, flattenLocale } from './tourSeed.js';
 /**
  * Loads tour content for the build.
  *
- * The important rule is that a Blobs failure on Netlify FAILS THE BUILD rather
- * than falling back to the committed seed files. Falling back would look like a
- * success — green deploy, no error — while silently republishing months-old
- * content over the client's edits. A failed build is loud and leaves the last
- * good deploy serving, which is strictly better.
+ * On Netlify the content is fetched over HTTP from the site's own
+ * /api/tour-content endpoint rather than read from Blobs directly. That looks
+ * indirect, but it is the mechanism that actually works: Blobs injects
+ * credentials automatically into deployed functions, and does not into builds.
+ * Passing siteID/token explicitly is the documented workaround, but Netlify
+ * refuses to expose a NETLIFY_SITE_ID variable to the build environment, so the
+ * build has no site ID to pass and every attempt returns 401. Going through the
+ * function sidesteps the problem: the function reads Blobs with the credentials
+ * it is given for free, and the build authenticates to it with ADMIN_PASSWORD,
+ * which the build environment does provide.
  *
- * Locally there are no credentials and falling back is the correct, everyday
- * behaviour, so the distinction is drawn on ON_NETLIFY rather than on the error.
+ * The request targets the live site, which is still serving the previous deploy
+ * while this build runs. That is fine — the previous deploy's function reads the
+ * same Blobs store, so it returns current content regardless of which deploy's
+ * code answers.
+ *
+ * Throughout, a failure that could mean "content exists but we could not read
+ * it" FAILS THE BUILD rather than falling back to the committed seed files.
+ * Falling back would look like success — green deploy, no error — while
+ * silently republishing months-old content over the client's edits. A failed
+ * build is loud and leaves the last good deploy serving.
  */
 async function loadTourDoc(): Promise<TourContentDoc> {
   if (process.env.TOURS_FORCE_SEED === '1') {
@@ -21,15 +34,72 @@ async function loadTourDoc(): Promise<TourContentDoc> {
     return doc;
   }
 
-  const { store, how, siteIdSource, hasToken } = openStore();
+  if (ON_NETLIFY) return loadFromApi();
+  return loadFromBlobsOrSeed();
+}
 
-  // Logged on every build so an auth failure is diagnosable from the log alone,
-  // rather than surfacing as a bare 401. No secret values are logged.
+/** Build-time read via the site's own API. See the note above for why. */
+async function loadFromApi(): Promise<TourContentDoc> {
+  const base = (process.env.TOUR_CONTENT_URL || process.env.URL || '').replace(/\/$/, '');
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!base || !password) {
+    throw new Error(
+      `[tours] cannot load tour content: ${!base ? 'no site URL (URL)' : 'no ADMIN_PASSWORD'} in the build environment. ` +
+        'Refusing to build with stale seed content, which would silently overwrite saved edits. ' +
+        'Set TOURS_FORCE_SEED=1 to deliberately build from the repo files instead.'
+    );
+  }
+
+  const endpoint = `${base}/api/tour-content`;
+  let response: Response;
+  try {
+    response = await fetch(endpoint, { headers: { 'X-Admin-Password': password } });
+  } catch (error) {
+    throw new Error(
+      `[tours] could not reach ${endpoint}: ${(error as Error).message}. ` +
+        'Refusing to build with stale seed content. Set TOURS_FORCE_SEED=1 to build from the repo files instead.'
+    );
+  }
+
+  // The endpoint does not exist yet on the deploy currently being served. Only
+  // true until this build ships the function for the first time.
+  if (response.status === 404) {
+    const doc = buildSeedDoc();
+    console.log(`[tours] ${endpoint} not deployed yet — using seed files (${doc.tours.length} tours)`);
+    return doc;
+  }
+
+  if (!response.ok) {
+    const hint =
+      response.status === 401
+        ? "ADMIN_PASSWORD in the build environment does not match the one the function checks against."
+        : 'The content API returned an unexpected status.';
+    throw new Error(
+      `[tours] ${endpoint} returned ${response.status}. ${hint} ` +
+        'Refusing to build with stale seed content, which would silently overwrite saved edits. ' +
+        'Set TOURS_FORCE_SEED=1 to deliberately build from the repo files instead.'
+    );
+  }
+
+  const doc = await response.json();
+  assertValidDoc(doc);
+  console.log(`[tours] loaded ${doc.tours.length} tours from ${endpoint} (updated ${doc.updatedAt})`);
+  return doc;
+}
+
+/**
+ * Off-Netlify path. Normally there are no credentials and the seed files are
+ * the right answer; explicit credentials let a developer point a local build at
+ * a real store (see TOUR_STORE_NAME) to reproduce a content problem.
+ */
+async function loadFromBlobsOrSeed(): Promise<TourContentDoc> {
+  const { store, how, siteIdSource, hasToken } = openStore();
   const auth = `store="${STORE_NAME}" auth=${how} siteId=${siteIdSource ?? 'MISSING'} token=${hasToken ? 'present' : 'MISSING'}`;
 
   if (!store) {
     const doc = buildSeedDoc();
-    console.log(`[tours] no Blobs credentials (${auth}) — using seed files (${doc.tours.length} tours)`);
+    console.log(`[tours] local build, no Blobs credentials (${auth}) — using seed files (${doc.tours.length} tours)`);
     return doc;
   }
 
@@ -37,35 +107,19 @@ async function loadTourDoc(): Promise<TourContentDoc> {
   try {
     stored = await store.get(CONTENT_KEY, { type: 'json' });
   } catch (error) {
-    if (ON_NETLIFY) {
-      const hint = !siteIdSource
-        ? 'No site ID was found: set NETLIFY_SITE_ID to the value of Site configuration -> General -> Site details -> API ID.'
-        : !hasToken
-          ? 'No API token was found: set NETLIFY_API_TOKEN, scoped to Builds.'
-          : 'A site ID and token were both found, so the credentials were rejected — check the token is a valid personal access token with access to this site.';
-      throw new Error(
-        `[tours] could not read tour content from Blobs: ${(error as Error).message}. ${auth}. ${hint} ` +
-          'Refusing to build with stale seed content, which would silently overwrite saved edits. ' +
-          'Set TOURS_FORCE_SEED=1 to deliberately build from the repo files instead.'
-      );
-    }
     const doc = buildSeedDoc();
-    console.log(`[tours] Blobs unreachable locally (${auth}) — using seed files (${doc.tours.length} tours)`);
+    console.log(`[tours] local build, Blobs unreachable (${auth}: ${(error as Error).message}) — using seed files`);
     return doc;
   }
 
-  // A missing key is legitimate: nobody has opened the admin yet. The content
-  // function seeds it on first read, so this only happens on the first deploy.
   if (stored === null || stored === undefined) {
     const doc = buildSeedDoc();
-    console.log(`[tours] no saved content yet — using seed files (${doc.tours.length} tours)`);
+    console.log(`[tours] local build, no saved content — using seed files (${doc.tours.length} tours)`);
     return doc;
   }
 
-  // A document that exists but is invalid is never silently replaced with seed
-  // data — that would hide the client's content behind stale copy.
   assertValidDoc(stored);
-  console.log(`[tours] loaded ${stored.tours.length} tours from Blobs — ${auth} (updated ${stored.updatedAt})`);
+  console.log(`[tours] local build, loaded ${stored.tours.length} tours from Blobs — ${auth}`);
   return stored;
 }
 
