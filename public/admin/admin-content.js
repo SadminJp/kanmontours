@@ -484,7 +484,11 @@ contentEls.saveBtn.addEventListener('click', function () {
       contentDoc.publishedAt = published;
       renderScheduleTours(toScheduleTours(contentDoc));
       updatePublishState();
-      setStatus(contentEls.status, 'Saved. Press "Publish to website" to put these changes live.', 'success');
+      if (body.warning) {
+        setStatus(contentEls.status, 'Saved, but: ' + body.warning, 'error');
+      } else {
+        setStatus(contentEls.status, 'Saved. Press "Publish to website" to put these changes live.', 'success');
+      }
     })
     .catch(function (error) {
       if (isAuthError(error)) showLogin('Your session has expired. Please log in again.');

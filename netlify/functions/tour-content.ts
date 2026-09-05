@@ -1,6 +1,6 @@
 import { getStore } from '@netlify/blobs';
 import type { Context } from '@netlify/functions';
-import { CONTENT_KEY, PUBLISH_KEY, STORE_NAME, json, verifyAdminPassword } from '../lib/admin.js';
+import { CONTENT_KEY, PUBLISH_KEY, SCHEDULES_KEY, STORE_NAME, json, verifyAdminPassword } from '../lib/admin.js';
 import { buildSeedDoc } from '../../src/data/tourSeed.js';
 import type { TourContentDoc } from '../../src/data/types.js';
 import { MAX_DOC_BYTES, ValidationError, normalizeDoc } from '../lib/tourContent.js';
@@ -37,6 +37,68 @@ const PUBLISH_COOLDOWN_MS = 60 * 1000;
 
 async function readPublishState(store: ReturnType<typeof getStore>): Promise<PublishState | null> {
   return (await store.get(PUBLISH_KEY, { type: 'json' })) as PublishState | null;
+}
+
+/**
+ * Keeps the booking schedule in step with the tours.
+ *
+ * Schedules are keyed by slug, so renaming a tour would otherwise leave its
+ * operating days behind under the old key and the tour would silently become
+ * unbookable — the worst kind of failure here, because nothing looks broken.
+ * Matching on the stable `id` is the whole reason that field exists: it is what
+ * tells a rename apart from a delete-plus-add.
+ *
+ * Best effort by design. The content save has already succeeded by this point,
+ * and failing the whole request because a follow-up write failed would be
+ * worse than reporting it — schedules.ts drops unknown slugs on read anyway, so
+ * a stale entry is untidy rather than harmful.
+ */
+async function reconcileSchedules(
+  store: ReturnType<typeof getStore>,
+  previous: TourContentDoc | null,
+  next: TourContentDoc
+): Promise<string | null> {
+  const renames = new Map<string, string>();
+  if (previous) {
+    const oldSlugById = new Map(previous.tours.map((tour) => [tour.id, tour.slug]));
+    for (const tour of next.tours) {
+      const oldSlug = oldSlugById.get(tour.id);
+      if (oldSlug && oldSlug !== tour.slug) renames.set(oldSlug, tour.slug);
+    }
+  }
+
+  const liveSlugs = new Set(next.tours.map((tour) => tour.slug));
+
+  try {
+    const schedules = (await store.get(SCHEDULES_KEY, { type: 'json' })) as
+      | { minLeadDays: number; tours: Record<string, unknown> }
+      | null;
+    if (!schedules || !schedules.tours) return null;
+
+    let changed = false;
+    const tours: Record<string, unknown> = {};
+
+    for (const [slug, schedule] of Object.entries(schedules.tours)) {
+      const renamedTo = renames.get(slug);
+      if (renamedTo) {
+        tours[renamedTo] = schedule;
+        changed = true;
+      } else if (liveSlugs.has(slug)) {
+        tours[slug] = schedule;
+      } else {
+        // The tour was deleted; drop its orphaned schedule.
+        changed = true;
+      }
+    }
+
+    if (!changed) return null;
+    await store.setJSON(SCHEDULES_KEY, { ...schedules, tours });
+    return null;
+  } catch (error) {
+    return renames.size
+      ? 'The tour was renamed, but its operating days could not be moved across — please check the Schedule tab.'
+      : 'The tour was removed, but its old operating days could not be tidied up.';
+  }
 }
 
 /**
@@ -156,7 +218,9 @@ export default async (req: Request, _context: Context): Promise<Response> => {
     }
 
     await store.setJSON(CONTENT_KEY, normalized);
-    return json({ ok: true, data: normalized });
+
+    const warning = await reconcileSchedules(store, existing, normalized);
+    return json(warning ? { ok: true, data: normalized, warning } : { ok: true, data: normalized });
   }
 
   return json({ error: 'Method not allowed.' }, 405);
