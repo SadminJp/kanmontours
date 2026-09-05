@@ -1,6 +1,6 @@
 import { getStore } from '@netlify/blobs';
-import { createHash, timingSafeEqual } from 'node:crypto';
 import type { Context } from '@netlify/functions';
+import { SCHEDULES_KEY, STORE_NAME, json, safeEqual } from '../lib/admin.js';
 
 /**
  * Serves and updates the tour operating-day schedule that the public booking
@@ -17,8 +17,6 @@ import type { Context } from '@netlify/functions';
  * there's nothing gained from splitting it up.
  */
 
-const STORE_NAME = 'kanmon-tours';
-const BLOB_KEY = 'schedules';
 const TOUR_SLUGS = ['moji-port-town', 'kokura-castle', 'toto-museum', 'shimonoseki-castle-town'] as const;
 
 interface TourSchedule {
@@ -79,33 +77,14 @@ function normalizeSchedules(input: unknown): Schedules {
   };
 }
 
-/**
- * Constant-time string comparison. crypto.timingSafeEqual requires equal-length
- * buffers and throws otherwise, which a variable-length user password would
- * trip — hashing both sides to a fixed-length digest first sidesteps that
- * while still avoiding the early-exit timing leak of a plain === comparison.
- */
-function safeEqual(a: string, b: string): boolean {
-  const hashA = createHash('sha256').update(a).digest();
-  const hashB = createHash('sha256').update(b).digest();
-  return timingSafeEqual(hashA, hashB);
-}
-
-function json(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-  });
-}
-
 export default async (req: Request, _context: Context): Promise<Response> => {
   const store = getStore(STORE_NAME);
 
   if (req.method === 'GET') {
-    let current = await store.get(BLOB_KEY, { type: 'json' });
+    let current = await store.get(SCHEDULES_KEY, { type: 'json' });
     if (!current) {
       current = DEFAULT_SCHEDULES;
-      await store.setJSON(BLOB_KEY, current);
+      await store.setJSON(SCHEDULES_KEY, current);
     }
     return json(normalizeSchedules(current));
   }
@@ -135,7 +114,7 @@ export default async (req: Request, _context: Context): Promise<Response> => {
     }
 
     const normalized = normalizeSchedules(data);
-    await store.setJSON(BLOB_KEY, normalized);
+    await store.setJSON(SCHEDULES_KEY, normalized);
     return json({ ok: true, data: normalized });
   }
 

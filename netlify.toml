@@ -21,3 +21,11 @@
   from = "/api/settings"
   to = "/.netlify/functions/settings"
   status = 200
+
+# Clean URL for the editable tour content. Both GET and POST require the
+# ADMIN_PASSWORD env var — unlike schedules, nothing here is public, since the
+# same content is already served as HTML — see netlify/functions/tour-content.ts.
+[[redirects]]
+  from = "/api/tour-content"
+  to = "/.netlify/functions/tour-content"
+  status = 200

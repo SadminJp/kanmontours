@@ -1,6 +1,6 @@
-import type { Locale, LocalizedTour, TourContent, TourContentDoc, TourEntry } from './types';
-import { toursEn } from './tours.en';
-import { toursJa } from './tours.ja';
+import type { Locale, LocalizedTour, TourContent, TourContentDoc, TourEntry } from './types.js';
+import { toursEn } from './tours.en.js';
+import { toursJa } from './tours.ja.js';
 
 /** Deterministic id from a slug, so reseeding twice produces the same document. */
 function seedId(slug: string): string {

@@ -1,6 +1,6 @@
 import { getStore } from '@netlify/blobs';
-import { createHash, timingSafeEqual } from 'node:crypto';
 import type { Context } from '@netlify/functions';
+import { SETTINGS_KEY, STORE_NAME, json, verifyAdminPassword } from '../lib/admin.js';
 
 /**
  * The admin-configurable destination for form-submission notifications.
@@ -21,8 +21,6 @@ import type { Context } from '@netlify/functions';
  * email/submission_created hooks are deleted and recreated instead.
  */
 
-const STORE_NAME = 'kanmon-tours';
-const BLOB_KEY = 'settings';
 const NETLIFY_API = 'https://api.netlify.com/api/v1';
 
 interface SiteSettings {
@@ -31,27 +29,8 @@ interface SiteSettings {
 
 const DEFAULT_SETTINGS: SiteSettings = { notificationEmail: '' };
 
-function safeEqual(a: string, b: string): boolean {
-  const hashA = createHash('sha256').update(a).digest();
-  const hashB = createHash('sha256').update(b).digest();
-  return timingSafeEqual(hashA, hashB);
-}
-
-function verifyAdminPassword(candidate: unknown): boolean {
-  const adminPassword = process.env.ADMIN_PASSWORD;
-  if (!adminPassword || typeof candidate !== 'string') return false;
-  return safeEqual(candidate, adminPassword);
-}
-
 function isValidEmail(value: unknown): value is string {
   return typeof value === 'string' && value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
-function json(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-  });
 }
 
 async function syncNotificationHooks(email: string): Promise<{ ok: true } | { ok: false; error: string }> {
@@ -120,7 +99,7 @@ export default async (req: Request, _context: Context): Promise<Response> => {
     if (!verifyAdminPassword(req.headers.get('X-Admin-Password'))) {
       return json({ error: 'Incorrect password.' }, 401);
     }
-    const current = (await store.get(BLOB_KEY, { type: 'json' })) as SiteSettings | null;
+    const current = (await store.get(SETTINGS_KEY, { type: 'json' })) as SiteSettings | null;
     return json(current ?? DEFAULT_SETTINGS);
   }
 
@@ -141,7 +120,7 @@ export default async (req: Request, _context: Context): Promise<Response> => {
     }
 
     const settings: SiteSettings = { notificationEmail };
-    await store.setJSON(BLOB_KEY, settings);
+    await store.setJSON(SETTINGS_KEY, settings);
 
     const syncResult = await syncNotificationHooks(notificationEmail);
     if (!syncResult.ok) {

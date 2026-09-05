@@ -1,6 +1,6 @@
-import type { TourContent, TourContentDoc } from './types';
-import { CONTENT_KEY, ON_NETLIFY, openStore } from './blobStore';
-import { assertValidDoc, buildSeedDoc, flattenLocale } from './tourSeed';
+import type { TourContent, TourContentDoc } from './types.js';
+import { CONTENT_KEY, ON_NETLIFY, openStore } from './blobStore.js';
+import { assertValidDoc, buildSeedDoc, flattenLocale } from './tourSeed.js';
 
 /**
  * Loads tour content for the build.
