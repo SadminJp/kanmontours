@@ -37,6 +37,18 @@ const year = new Date().getFullYear();
         ))}
       </ul>
     </div>
+    <!-- Intended to become a link to special tours, events and notices. Wrapping
+         this img in an <a> is all that needs to change; the alt text already
+         reads as the link text. -->
+    <div class="site-footer__brand">
+      <img
+        src={`${base}/images/site/kanmon-tours-logo.jpg`}
+        alt="Kanmon Tours"
+        width="720"
+        height="480"
+        loading="lazy"
+      />
+    </div>
   </div>
   <div class="container site-footer__bottom">
     <p>&copy; {year} Kanmon Strait Walking Tours. {ui.footer.rights}</p>
@@ -78,6 +90,30 @@ const year = new Date().getFullYear();
 
   .site-footer__links li {
     margin-bottom: 0.4rem;
+  }
+
+  /* Sits in the third grid column, pushed to the right edge of the footer.
+     The logo artwork has its own light-blue background rather than a
+     transparent one, so the rounded corner keeps it reading as a deliberate
+     badge against the teal instead of an untrimmed rectangle. */
+  .site-footer__brand {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+  }
+
+  .site-footer__brand img {
+    width: 100%;
+    max-width: 260px;
+    height: auto;
+    border-radius: var(--radius);
+  }
+
+  /* Stacked on narrow screens, where "right" would just look misaligned. */
+  @media (max-width: 767px) {
+    .site-footer__brand {
+      justify-content: flex-start;
+    }
   }
 
   .site-footer__bottom {
