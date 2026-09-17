@@ -25,7 +25,7 @@ import { CONTENT_KEY, SCHEDULES_KEY, STORE_NAME, json, safeEqual } from '../lib/
  * empty list would silently disable every date on the calendar and the
  * business would stop taking bookings without any visible error.
  */
-const FALLBACK_TOUR_SLUGS = ['moji-port-town', 'kokura-castle', 'toto-museum', 'shimonoseki-castle-town'];
+const FALLBACK_TOUR_SLUGS = ['kanmon-strait-grand-tour', 'kokura-castle', 'toto-museum', 'shimonoseki-castle-town'];
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
