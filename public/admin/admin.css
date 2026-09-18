@@ -28,8 +28,8 @@ main {
   margin: 0 auto;
 }
 
-/* The content editor needs far more width than the schedule form, so the
-   wrapper widens once the content tab is active. */
+/* Both tabs lay English and Japanese out in two columns, which needs more
+   width than the original single-column form. */
 main.is-wide {
   max-width: 1180px;
 }
@@ -489,6 +489,35 @@ button.danger:hover { background: #fdf1f0; }
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   min-width: 260px;
+}
+
+/* The "different days for English and Japanese" toggle that reveals the
+   per-language columns below it. */
+.split-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+/* Two schedules side by side need a visible seam; without one the second
+   column's weekday row reads as a continuation of the first. */
+.field__cols > div + div {
+  border-top: 1px solid var(--color-border);
+  padding-top: 0.9rem;
+}
+
+@media (min-width: 900px) {
+  .field__cols > div + div {
+    border-top: none;
+    border-left: 1px solid var(--color-border);
+    padding-top: 0;
+    padding-left: 1.25rem;
+  }
 }
 
 .warn {

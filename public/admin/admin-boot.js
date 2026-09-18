@@ -13,6 +13,8 @@ function showLogin(message) {
   else clearStatus(els.loginStatus);
 }
 
+activateTabs(document.getElementById('main-tabs'));
+
 function loadEverything() {
   els.loginCard.hidden = true;
   setStatus(els.loadStatus, 'Loading…', 'loading');
@@ -48,10 +50,9 @@ function loadEverything() {
     });
 }
 
-activateTabs(document.getElementById('main-tabs'), function (panelId) {
-  // The content editor needs the extra width for its two language columns.
-  els.main.classList.toggle('is-wide', panelId === 'panel-content');
-});
+// Both tabs now show two language columns, and .field__cols only goes two-up
+// at 900px — inside the default 720px wrapper it could never fire.
+els.main.classList.add('is-wide');
 
 els.loginForm.addEventListener('submit', function (event) {
   event.preventDefault();

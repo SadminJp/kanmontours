@@ -29,14 +29,37 @@ const FALLBACK_TOUR_SLUGS = ['kanmon-strait-grand-tour', 'kokura-castle', 'toto-
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-interface TourSchedule {
+const LOCALES = ['en', 'ja'] as const;
+type Locale = (typeof LOCALES)[number];
+
+interface LocaleSchedule {
   weekdays: number[];
   blackoutDates: string[];
   extraDates: string[];
 }
 
+/**
+ * A tour's availability.
+ *
+ * The three fields are the schedule both languages share. `byLocale` is the
+ * optional override for tours that run on different days in English and
+ * Japanese; null — or a missing branch within it — means that language falls
+ * back to the shared fields. Every document written before this existed simply
+ * has no `byLocale` key, which already reads as "no override", so nothing
+ * needed converting.
+ *
+ * The locale nests INSIDE the per-slug value rather than above `tours` on
+ * purpose: tour-content.ts rewrites this blob on a slug rename by spreading
+ * each per-slug value opaquely, and a locale dimension above `tours` would
+ * quietly break that.
+ */
+interface TourSchedule extends LocaleSchedule {
+  byLocale: Partial<Record<Locale, LocaleSchedule>> | null;
+}
+
 interface Schedules {
   minLeadDays: number;
+  leadDaysByLocale: Partial<Record<Locale, number>> | null;
   tours: Record<string, TourSchedule>;
 }
 
@@ -69,7 +92,10 @@ async function getTourSlugs(store: Store): Promise<string[]> {
 function defaultSchedules(slugs: string[]): Schedules {
   return {
     minLeadDays: DEFAULT_MIN_LEAD_DAYS,
-    tours: Object.fromEntries(slugs.map((slug) => [slug, { weekdays: [2, 4, 6], blackoutDates: [], extraDates: [] }])),
+    leadDaysByLocale: null,
+    tours: Object.fromEntries(
+      slugs.map((slug) => [slug, { weekdays: [2, 4, 6], blackoutDates: [], extraDates: [], byLocale: null }])
+    ),
   };
 }
 
@@ -90,24 +116,70 @@ function toIsoDates(value: unknown): string[] {
   return [...new Set(dates)].sort();
 }
 
+function toLocaleSchedule(value: unknown): LocaleSchedule {
+  const raw = (value ?? {}) as Record<string, unknown>;
+  return {
+    weekdays: toWeekdays(raw.weekdays),
+    blackoutDates: toIsoDates(raw.blackoutDates),
+    extraDates: toIsoDates(raw.extraDates),
+  };
+}
+
+/**
+ * Normalises the optional per-language override.
+ *
+ * Anything unusable becomes null, which means both languages fall back to the
+ * tour's shared schedule. That is still failing closed: the fallback is a real
+ * schedule the admin set, not "every date open". A branch that is simply absent
+ * is left absent rather than filled with an empty schedule, so a half-written
+ * override degrades to the shared days instead of silently making one language
+ * unbookable.
+ */
+function toByLocale(value: unknown): Partial<Record<Locale, LocaleSchedule>> | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const raw = value as Record<string, unknown>;
+
+  const out: Partial<Record<Locale, LocaleSchedule>> = {};
+  for (const locale of LOCALES) {
+    if (raw[locale] !== undefined && raw[locale] !== null) out[locale] = toLocaleSchedule(raw[locale]);
+  }
+  return Object.keys(out).length ? out : null;
+}
+
+function toLeadDays(value: unknown): number | null {
+  const days = Number(value);
+  return Number.isFinite(days) && days >= 0 ? Math.floor(days) : null;
+}
+
+function toLeadDaysByLocale(value: unknown): Partial<Record<Locale, number>> | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const raw = value as Record<string, unknown>;
+
+  const out: Partial<Record<Locale, number>> = {};
+  for (const locale of LOCALES) {
+    const days = toLeadDays(raw[locale]);
+    if (days !== null) out[locale] = days;
+  }
+  return Object.keys(out).length ? out : null;
+}
+
 /** Bad or missing input fails closed to the safe default, never to "everything open." */
 function normalizeSchedules(input: unknown, slugs: string[]): Schedules {
   const raw = (input ?? {}) as Record<string, unknown>;
   const rawTours = (raw.tours ?? {}) as Record<string, unknown>;
-  const leadDays = Number(raw.minLeadDays);
 
   const tours: Record<string, TourSchedule> = {};
   for (const slug of slugs) {
     const t = (rawTours[slug] ?? {}) as Record<string, unknown>;
     tours[slug] = {
-      weekdays: toWeekdays(t.weekdays),
-      blackoutDates: toIsoDates(t.blackoutDates),
-      extraDates: toIsoDates(t.extraDates),
+      ...toLocaleSchedule(t),
+      byLocale: toByLocale(t.byLocale),
     };
   }
 
   return {
-    minLeadDays: Number.isFinite(leadDays) && leadDays >= 0 ? leadDays : DEFAULT_MIN_LEAD_DAYS,
+    minLeadDays: toLeadDays(raw.minLeadDays) ?? DEFAULT_MIN_LEAD_DAYS,
+    leadDaysByLocale: toLeadDaysByLocale(raw.leadDaysByLocale),
     tours,
   };
 }

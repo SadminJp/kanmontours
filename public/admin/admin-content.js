@@ -482,7 +482,11 @@ contentEls.saveBtn.addEventListener('click', function () {
       var published = contentDoc.publishedAt;
       renderContent(body.data);
       contentDoc.publishedAt = published;
+      // Rebuilding the cards empties them, so re-apply the schedule that was
+      // last loaded — otherwise saving content silently blanks every operating
+      // day on the other tab until the page is reloaded.
       renderScheduleTours(toScheduleTours(contentDoc));
+      repopulateSchedule();
       updatePublishState();
       if (body.warning) {
         setStatus(contentEls.status, 'Saved, but: ' + body.warning, 'error');

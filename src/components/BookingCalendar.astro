@@ -1,16 +1,18 @@
 ---
-import type { UiStrings } from '../data/types';
+import type { Locale, UiStrings } from '../data/types';
 
 interface Props {
   ui: UiStrings;
+  locale: Locale;
   inputName?: string;
 }
 
-const { ui, inputName = 'preferred-date' } = Astro.props;
+const { ui, locale, inputName = 'preferred-date' } = Astro.props;
 ---
 
 <div
   class="booking-calendar"
+  data-locale={locale}
   data-months={JSON.stringify(ui.calendar.months)}
   data-weekdays={JSON.stringify(ui.calendar.weekdays)}
   data-selected-label={ui.booking.selectedDate}
@@ -145,14 +147,22 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
 </style>
 
 <script>
-  interface TourSchedule {
+  interface LocaleSchedule {
     weekdays: number[];
     blackoutDates: string[];
     extraDates: string[];
   }
 
+  // Mirrors netlify/functions/schedules.ts. The three shared fields apply to
+  // both languages; byLocale overrides them for tours that run on different
+  // days in English and Japanese.
+  interface TourSchedule extends LocaleSchedule {
+    byLocale?: Partial<Record<string, LocaleSchedule>> | null;
+  }
+
   interface SchedulesResponse {
     minLeadDays: number;
+    leadDaysByLocale?: Partial<Record<string, number>> | null;
     tours: Record<string, TourSchedule>;
   }
 
@@ -189,7 +199,10 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
     const months: string[] = JSON.parse(calendar.dataset.months || '[]');
     const weekdays: string[] = JSON.parse(calendar.dataset.weekdays || '[]');
     const schedules = schedulesData.tours;
-    const minLeadDays = schedulesData.minLeadDays;
+    // Which language's page this is. A tour without an override for it falls
+    // back to its shared schedule, which is what every tour does by default.
+    const locale = calendar.dataset.locale || 'en';
+    const minLeadDays = schedulesData.leadDaysByLocale?.[locale] ?? schedulesData.minLeadDays;
     const selectedLabel = calendar.dataset.selectedLabel || 'Selected date';
     const selectTourMessage = calendar.dataset.selectTourMessage || 'Please select a tour to see available dates.';
 
@@ -259,9 +272,15 @@ const { ui, inputName = 'preferred-date' } = Astro.props;
         render();
       }
 
+      function scheduleFor(slug: string): LocaleSchedule | null {
+        const schedule = schedules[slug];
+        if (!schedule) return null;
+        return schedule.byLocale?.[locale] ?? schedule;
+      }
+
       function isOperating(iso: string, weekday: number, slugs: string[]) {
         return slugs.some((slug) => {
-          const schedule = schedules[slug];
+          const schedule = scheduleFor(slug);
           if (!schedule) return false;
           if (schedule.blackoutDates.includes(iso)) return false;
           return schedule.extraDates.includes(iso) || schedule.weekdays.includes(weekday);

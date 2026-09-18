@@ -36,9 +36,30 @@
         <form id="schedule-form" data-panel-body="panel-schedule">
           <div class="card">
             <h2>Booking lead time</h2>
-            <div class="lead-days">
+            <label class="split-toggle">
+              <input type="checkbox" id="lead-split" /> Different notice period for English and Japanese
+            </label>
+
+            <div class="lead-days" id="lead-shared">
               <label for="min-lead-days">Minimum days' notice required</label>
-              <input type="number" id="min-lead-days" name="minLeadDays" min="0" max="60" required />
+              <input type="number" id="min-lead-days" name="minLeadDays" min="0" max="60" />
+            </div>
+
+            <div class="field__cols" id="lead-cols" hidden>
+              <div>
+                <div class="field__col-label">English</div>
+                <div class="lead-days">
+                  <label for="min-lead-days-en">Minimum days' notice</label>
+                  <input type="number" id="min-lead-days-en" min="0" max="60" />
+                </div>
+              </div>
+              <div>
+                <div class="field__col-label">日本語</div>
+                <div class="lead-days">
+                  <label for="min-lead-days-ja">Minimum days' notice</label>
+                  <input type="number" id="min-lead-days-ja" min="0" max="60" />
+                </div>
+              </div>
             </div>
           </div>
 
