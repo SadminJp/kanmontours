@@ -56,7 +56,6 @@ export const uiJa: UiStrings = {
     step4: '4. 利用規約',
     termsAgree: 'ボックスに✔をして、利用規約を理解し承諾した上で申し込みます。',
     submit: '申し込む',
-    perPerson: 'お一人様',
     selectedDate: '選択した日付',
     successMessage: 'お申し込みありがとうございます。予約確認のメールを追って迅速にお送りいたします。',
     errorMessage: '送信中にエラーが発生しました。お手数ですが再度お試しいただくか、メールにて直接ご連絡ください。',

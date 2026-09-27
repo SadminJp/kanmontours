@@ -180,7 +180,6 @@ export interface UiStrings {
     step4: string;
     termsAgree: string;
     submit: string;
-    perPerson: string;
     selectedDate: string;
     successMessage: string;
     errorMessage: string;

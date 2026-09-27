@@ -51,7 +51,6 @@ export const uiEn: UiStrings = {
     step4: '4. Terms & Conditions',
     termsAgree: 'By checking this box I acknowledge having read and accepted the Terms & Conditions.',
     submit: 'SEND',
-    perPerson: 'per person',
     selectedDate: 'Selected date',
     successMessage: 'Thank you! We will send you the booking confirmation promptly by e-mail.',
     errorMessage: 'Sorry, something went wrong sending your request. Please try again, or email us directly.',
