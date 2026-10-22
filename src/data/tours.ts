@@ -64,7 +64,7 @@ async function loadFromApi(): Promise<TourContentDoc> {
 
   if (!response.ok) {
     // A 404 used to fall back to the seed files, back when the endpoint had not
-    // been deployed yet. It is deployed now, and URL is the custom domain, whose
+    // been deployed yet. It is deployed now, and URL can be a custom domain whose
     // DNS lives outside Netlify — so a 404 most likely means the domain is
     // answering from somewhere else (a lapsed registration, a parking page).
     // Falling back there would quietly republish the repo's old content.

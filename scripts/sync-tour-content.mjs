@@ -8,7 +8,7 @@
  * snapshot, so editing them alone changes nothing on the live site. This script
  * is the bridge.
  *
- *   node scripts/sync-tour-content.mjs [--site https://kanmontours.jp]
+ *   node scripts/sync-tour-content.mjs [--site https://example.netlify.app]
  *
  * It prints exactly what would change and asks for confirmation before writing.
  * The admin password is read from stdin rather than an argument, so it stays
@@ -27,7 +27,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import * as esbuild from 'esbuild';
 
-const DEFAULT_SITE = 'https://kanmontours.jp';
+const DEFAULT_SITE = 'https://jovial-fenglisu-85a2da.netlify.app';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
