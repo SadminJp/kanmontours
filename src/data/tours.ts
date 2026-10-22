@@ -62,23 +62,33 @@ async function loadFromApi(): Promise<TourContentDoc> {
     );
   }
 
-  // The endpoint does not exist yet on the deploy currently being served. Only
-  // true until this build ships the function for the first time.
-  if (response.status === 404) {
-    const doc = buildSeedDoc();
-    console.log(`[tours] ${endpoint} not deployed yet — using seed files (${doc.tours.length} tours)`);
-    return doc;
-  }
-
   if (!response.ok) {
+    // A 404 used to fall back to the seed files, back when the endpoint had not
+    // been deployed yet. It is deployed now, and URL is the custom domain, whose
+    // DNS lives outside Netlify — so a 404 most likely means the domain is
+    // answering from somewhere else (a lapsed registration, a parking page).
+    // Falling back there would quietly republish the repo's old content.
     const hint =
       response.status === 401
         ? "ADMIN_PASSWORD in the build environment does not match the one the function checks against."
-        : 'The content API returned an unexpected status.';
+        : response.status === 404
+          ? `Nothing answered at ${endpoint} — check that the domain's DNS still points at Netlify.`
+          : 'The content API returned an unexpected status.';
     throw new Error(
       `[tours] ${endpoint} returned ${response.status}. ${hint} ` +
         'Refusing to build with stale seed content, which would silently overwrite saved edits. ' +
         'Set TOURS_FORCE_SEED=1 to deliberately build from the repo files instead.'
+    );
+  }
+
+  // A parked or misdirected domain answers 200 with an HTML page, which would
+  // otherwise surface as an unhelpful JSON syntax error.
+  const type = response.headers.get('content-type') ?? '';
+  if (!type.includes('application/json')) {
+    throw new Error(
+      `[tours] ${endpoint} returned ${type || 'no content type'} instead of JSON — ` +
+        "the domain is probably not pointing at Netlify (yet). Check the site's DNS. " +
+        'Refusing to build with stale seed content. Set TOURS_FORCE_SEED=1 to build from the repo files instead.'
     );
   }
 

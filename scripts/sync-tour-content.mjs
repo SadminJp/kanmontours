@@ -8,7 +8,7 @@
  * snapshot, so editing them alone changes nothing on the live site. This script
  * is the bridge.
  *
- *   node scripts/sync-tour-content.mjs [--site https://example.netlify.app]
+ *   node scripts/sync-tour-content.mjs [--site https://kanmontours.jp]
  *
  * It prints exactly what would change and asks for confirmation before writing.
  * The admin password is read from stdin rather than an argument, so it stays
@@ -27,7 +27,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import * as esbuild from 'esbuild';
 
-const DEFAULT_SITE = 'https://jovial-fenglisu-85a2da.netlify.app';
+const DEFAULT_SITE = 'https://kanmontours.jp';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -124,12 +124,23 @@ try {
   }
 
   process.stdout.write(`\nReading live content from ${endpoint} … `);
-  const response = await fetch(endpoint, { headers: { 'X-Admin-Password': password } });
+  // Redirects are refused rather than followed: the netlify.app address
+  // redirects to the custom domain, and following a redirect turns the POST
+  // below into a GET with no body, which would fail in a confusing way.
+  const response = await fetch(endpoint, { headers: { 'X-Admin-Password': password }, redirect: 'manual' });
+  if (response.status >= 300 && response.status < 400) {
+    console.error(`\n${endpoint} redirects to ${response.headers.get('location')}. Pass that address with --site.`);
+    exit(1);
+  }
   if (!response.ok) {
     console.error(
       `\nCould not read the live content (HTTP ${response.status}).` +
         (response.status === 401 ? ' The password was rejected.' : '')
     );
+    exit(1);
+  }
+  if (!(response.headers.get('content-type') ?? '').includes('application/json')) {
+    console.error(`\n${endpoint} did not answer with JSON — is the domain pointing at Netlify yet?`);
     exit(1);
   }
   const live = await response.json();
@@ -165,6 +176,7 @@ try {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ password, baseUpdatedAt: live.updatedAt, data: { tours: next.tours } }),
+    redirect: 'manual',
   });
   const body = await save.json().catch(() => ({}));
   if (!save.ok) {
