@@ -6,6 +6,17 @@
 [build.environment]
   NODE_VERSION = "22"
 
+# Send the old Netlify address to the real domain, so there is one copy of the
+# site rather than two competing in search results. Netlify does not do this on
+# its own. It matches only this exact host, so branch and deploy-preview
+# addresses (main--…, deploy-preview-N--…) keep working. First, so it wins over
+# the /api rewrites below.
+[[redirects]]
+  from = "https://jovial-fenglisu-85a2da.netlify.app/*"
+  to = "https://kanmontours.jp/:splat"
+  status = 301
+  force = true
+
 # Clean URL for the schedules API. GET is public (the booking calendar
 # needs it); POST requires the ADMIN_PASSWORD env var — see
 # netlify/functions/schedules.ts.
