@@ -105,10 +105,6 @@ export interface SiteContent {
     heading: string;
     groups: AccessGroup[];
   };
-  contact: {
-    heading: string;
-    email: string;
-  };
 }
 
 export interface PolicySection {
