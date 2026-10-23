@@ -94,4 +94,8 @@ export const siteJa: SiteContent = {
       },
     ],
   },
+  contact: {
+    heading: 'お問い合わせ',
+    email: 'walkingtours@japanks.com',
+  },
 };

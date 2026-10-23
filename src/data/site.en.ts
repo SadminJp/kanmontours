@@ -87,4 +87,8 @@ export const siteEn: SiteContent = {
       },
     ],
   },
+  contact: {
+    heading: 'Contact Us',
+    email: 'walkingtours@japanks.com',
+  },
 };

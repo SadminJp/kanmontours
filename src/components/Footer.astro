@@ -1,5 +1,7 @@
 ---
 import type { Locale, UiStrings } from '../data/types';
+import { siteEn } from '../data/site.en';
+import { siteJa } from '../data/site.ja';
 
 interface Props {
   locale: Locale;
@@ -8,6 +10,7 @@ interface Props {
 
 const { locale, ui } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const site = locale === 'en' ? siteEn : siteJa;
 
 const links = [
   { href: `${base}/${locale}/`, label: ui.nav.home },
@@ -22,6 +25,10 @@ const year = new Date().getFullYear();
 
 <footer class="site-footer">
   <div class="container site-footer__inner">
+    <div>
+      <h3>{site.contact.heading}</h3>
+      <p><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></p>
+    </div>
     <div>
       <h3>{ui.footer.quickLinks}</h3>
       <ul class="site-footer__links">
@@ -85,7 +92,7 @@ const year = new Date().getFullYear();
     margin-bottom: 0.4rem;
   }
 
-  /* Sits in the second grid column, pushed to the right edge of the footer.
+  /* Sits in the third grid column, pushed to the right edge of the footer.
      The logo artwork has its own light-blue background rather than a
      transparent one, so the rounded corner keeps it reading as a deliberate
      badge against the teal instead of an untrimmed rectangle. */
