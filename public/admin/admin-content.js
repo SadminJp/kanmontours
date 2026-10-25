@@ -70,6 +70,8 @@ function renderContent(doc) {
   }
   renderTourTabs();
   renderActiveTour();
+  // The Home Page tab edits the same document (its `home` field).
+  if (typeof renderHome === 'function') renderHome();
   updatePublishState();
 }
 
@@ -454,29 +456,38 @@ function deleteTour(tour) {
  * Publishing is separate from saving because each publish is a full site
  * rebuild. Saving every keystroke straight to a deploy would burn build
  * minutes and leave the client waiting minutes to see anything.
+ *
+ * The Tour Content and Home Page tabs edit one document, so they share one
+ * dirty flag, one Save and one Publish — each tab just has its own buttons.
  */
+var PUBLISH_BUTTON_IDS = ['publish-btn', 'home-publish-btn'];
+
 function updatePublishState() {
   if (!contentDoc) return;
   var unpublished = contentDoc.updatedAt !== contentDoc.publishedAt;
-  contentEls.publishBtn.disabled = contentDirty || !unpublished;
-  contentEls.publishBtn.textContent = contentDirty
-    ? 'Save first, then publish'
-    : unpublished
-      ? 'Publish to website'
-      : 'Everything is published';
+  PUBLISH_BUTTON_IDS.forEach(function (id) {
+    var btn = document.getElementById(id);
+    if (!btn) return;
+    btn.disabled = contentDirty || !unpublished;
+    btn.textContent = contentDirty
+      ? 'Save first, then publish'
+      : unpublished
+        ? 'Publish to website'
+        : 'Everything is published';
+  });
 }
 
-contentEls.saveBtn.addEventListener('click', function () {
+function saveContent(statusEl, saveBtn) {
   var password = getSessionPassword();
   if (!password) return showLogin('Please log in again.');
 
-  contentEls.saveBtn.disabled = true;
-  setStatus(contentEls.status, 'Saving…', 'loading');
+  saveBtn.disabled = true;
+  setStatus(statusEl, 'Saving…', 'loading');
 
   postJson(CONTENT_URL, {
     password: password,
     baseUpdatedAt: contentDoc.updatedAt,
-    data: { tours: contentDoc.tours },
+    data: { tours: contentDoc.tours, home: contentDoc.home },
   })
     .then(function (body) {
       var published = contentDoc.publishedAt;
@@ -489,42 +500,50 @@ contentEls.saveBtn.addEventListener('click', function () {
       repopulateSchedule();
       updatePublishState();
       if (body.warning) {
-        setStatus(contentEls.status, 'Saved, but: ' + body.warning, 'error');
+        setStatus(statusEl, 'Saved, but: ' + body.warning, 'error');
       } else {
-        setStatus(contentEls.status, 'Saved. Press "Publish to website" to put these changes live.', 'success');
+        setStatus(statusEl, 'Saved. Press "Publish to website" to put these changes live.', 'success');
       }
     })
     .catch(function (error) {
       if (isAuthError(error)) showLogin('Your session has expired. Please log in again.');
-      else setStatus(contentEls.status, error.message || 'Could not save.', 'error');
+      else setStatus(statusEl, error.message || 'Could not save.', 'error');
     })
     .finally(function () {
-      contentEls.saveBtn.disabled = false;
+      saveBtn.disabled = false;
     });
-});
+}
 
-contentEls.publishBtn.addEventListener('click', function () {
+function publishContent(statusEl, publishBtn) {
   var password = getSessionPassword();
   if (!password) return showLogin('Please log in again.');
 
-  contentEls.publishBtn.disabled = true;
-  setStatus(contentEls.status, 'Publishing… the website updates in a minute or two.', 'loading');
+  publishBtn.disabled = true;
+  setStatus(statusEl, 'Publishing… the website updates in a minute or two.', 'loading');
 
   postJson(CONTENT_URL + '?action=publish', { password: password })
     .then(function (body) {
       contentDoc.publishedAt = body.publishedAt;
       updatePublishState();
       setStatus(
-        contentEls.status,
+        statusEl,
         'Publishing started. The website will show your changes in a minute or two — reload the site to check.',
         'success'
       );
     })
     .catch(function (error) {
       if (isAuthError(error)) showLogin('Your session has expired. Please log in again.');
-      else setStatus(contentEls.status, error.message || 'Could not publish.', 'error');
+      else setStatus(statusEl, error.message || 'Could not publish.', 'error');
       updatePublishState();
     });
+}
+
+contentEls.saveBtn.addEventListener('click', function () {
+  saveContent(contentEls.status, contentEls.saveBtn);
+});
+
+contentEls.publishBtn.addEventListener('click', function () {
+  publishContent(contentEls.status, contentEls.publishBtn);
 });
 
 /** The schedule tab's tour list is derived from the content document. */

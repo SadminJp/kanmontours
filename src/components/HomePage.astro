@@ -1,0 +1,142 @@
+---
+import Layout from '../layouts/Layout.astro';
+import TourCard from './TourCard.astro';
+import { homeImages, siteEn, siteJa } from '../data/site';
+import { toursEn, toursJa } from '../data/tours';
+import { uiEn } from '../data/ui.en';
+import { uiJa } from '../data/ui.ja';
+import type { HomeImage, Locale } from '../data/types';
+
+/**
+ * The home page for either language. The English and Japanese pages used to be
+ * two near-identical files differing only in data and alt text; with both now
+ * coming from the admin-edited document, one component keeps them from drifting.
+ */
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const site = locale === 'en' ? siteEn : siteJa;
+const tours = locale === 'en' ? toursEn : toursJa;
+const ui = locale === 'en' ? uiEn : uiJa;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const images = homeImages;
+
+const src = (image: HomeImage) => `${base}${image.src}`;
+const alt = (image: HomeImage) => image.alt[locale];
+---
+
+<Layout locale={locale} title={site.meta.title} description={site.meta.description} ui={ui}>
+  <section class="hero">
+    <div class="container">
+      <h1>{site.hero.eyebrow}</h1>
+      <p class="tagline tagline--strong">{site.hero.tagline}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="location-heading">
+        {site.hero.title.map((line, i) => <>{i > 0 && <br />}{line}</>)}
+      </h2>
+      {images.banners.map((image) => (
+        <figure class="city-banner__image">
+          <img src={src(image)} alt={alt(image)} loading="lazy" />
+        </figure>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="location-heading">{site.intro.heading}</h2>
+      <div class="with-image with-image--flip">
+        <div class="with-image__img with-image__img--map">
+          <img src={src(images.regionMap)} alt={alt(images.regionMap)} loading="lazy" />
+        </div>
+        <div>
+          {site.intro.paragraphs.map((p) => <p>{p}</p>)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about-cities" class="section section--alt">
+    <div class="container">
+      <h2>{site.cities.heading}</h2>
+
+      <div class="city-section">
+        <h3>{site.cities.kitakyushu.title}</h3>
+        {site.cities.kitakyushu.paragraphs.map((p) => <p>{p}</p>)}
+        <div class="grid grid--3 city-gallery">
+          {images.kitakyushuGallery.map((image) => <img src={src(image)} alt={alt(image)} loading="lazy" />)}
+        </div>
+      </div>
+
+      <div class="city-section">
+        <h3>{site.cities.shimonoseki.title}</h3>
+        {site.cities.shimonoseki.paragraphs.map((p) => <p>{p}</p>)}
+        <div class="grid grid--3 city-gallery">
+          {images.shimonosekiGallery.map((image) => <img src={src(image)} alt={alt(image)} loading="lazy" />)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="offer" class="section">
+    <div class="container">
+      <h2>{site.offer.heading}</h2>
+      {site.offer.paragraphs.map((p) => <p>{p}</p>)}
+      <div class="grid grid--2 city-gallery" style="margin: 2rem 0">
+        {images.offerGallery.map((image) => <img src={src(image)} alt={alt(image)} loading="lazy" />)}
+      </div>
+      <h3>{site.offer.specialHeading}</h3>
+      <ul class="bullet-list">
+        {site.offer.specialPoints.map((point) => <li>{point}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section id="tours" class="section section--alt">
+    <div class="container">
+      <h2>{site.tours.heading}</h2>
+      {site.tours.intro && <p>{site.tours.intro}</p>}
+      <div class="grid grid--4">
+        {tours.map((tour) => <TourCard locale={locale} tour={tour} ui={ui} />)}
+      </div>
+    </div>
+  </section>
+
+  <section id="about-us" class="section">
+    <div class="container">
+      <h2>{site.about.heading}</h2>
+      {site.about.paragraphs.map((p) => <p>{p}</p>)}
+      <div class="about-gallery">
+        {images.aboutGallery.map((image) => <img src={src(image)} alt={alt(image)} loading="lazy" />)}
+      </div>
+    </div>
+  </section>
+
+  <section id="access" class="section section--alt">
+    <div class="container">
+      <h2>{site.access.heading}</h2>
+      <div class="access-map">
+        <img src={src(images.accessMap)} alt={alt(images.accessMap)} loading="lazy" />
+      </div>
+      <div class="grid grid--2">
+        {site.access.groups.map((group) => (
+          <div>
+            <h3>{group.heading}</h3>
+            {group.routes.map((route) => (
+              <div>
+                <strong>{route.label}</strong>
+                {route.lines.map((line) => <p>{line}</p>)}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>

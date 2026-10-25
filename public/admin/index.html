@@ -10,7 +10,7 @@
   <body>
     <main id="main">
       <h1>Kanmon Tours Admin</h1>
-      <p class="intro">Set the days each tour runs, and edit the wording and photos on the tour pages.</p>
+      <p class="intro">Set the days each tour runs, and edit the wording and photos on the tour pages and the home page.</p>
 
       <div class="card" id="login-card">
         <h2>Admin Login</h2>
@@ -29,6 +29,7 @@
         <div class="tabs" id="main-tabs">
           <button type="button" class="tab is-active" data-panel="panel-schedule">Schedule &amp; Settings</button>
           <button type="button" class="tab" data-panel="panel-content">Tour Content</button>
+          <button type="button" class="tab" data-panel="panel-home">Home Page</button>
         </div>
 
         <!-- Schedule and notification settings: these go live as soon as they
@@ -102,6 +103,27 @@
             </div>
           </div>
         </div>
+
+        <!-- Home page content: part of the same document as the tours, so it
+             shares their Save and Publish. -->
+        <div data-panel-body="panel-home" hidden>
+          <p class="publish-note">
+            Edit the home page in English and Japanese. Saving here also saves any unsaved changes on the
+            Tour Content tab, and <strong>Publish to website</strong> puts both live.
+          </p>
+
+          <div class="tabs tabs--tours" id="home-tabs"></div>
+          <div id="home-editor"></div>
+
+          <div class="save-bar">
+            <p id="home-status" class="status"></p>
+            <div class="save-row">
+              <button type="button" class="primary" id="home-save-btn">Save Changes</button>
+              <button type="button" class="secondary" id="home-publish-btn">Publish to website</button>
+              <button type="button" class="link" id="home-logout-btn">Log out</button>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
 
@@ -109,6 +131,7 @@
     <script src="admin-images.js"></script>
     <script src="admin-schedule.js"></script>
     <script src="admin-content.js"></script>
+    <script src="admin-home.js"></script>
     <script src="admin-boot.js"></script>
   </body>
 </html>

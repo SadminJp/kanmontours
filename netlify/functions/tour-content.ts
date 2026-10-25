@@ -1,12 +1,14 @@
 import { getStore } from '@netlify/blobs';
 import type { Context } from '@netlify/functions';
 import { CONTENT_KEY, PUBLISH_KEY, SCHEDULES_KEY, STORE_NAME, json, verifyAdminPassword } from '../lib/admin.js';
-import { buildSeedDoc } from '../../src/data/tourSeed.js';
+import { buildSeedDoc, buildSeedHome } from '../../src/data/tourSeed.js';
 import type { TourContentDoc } from '../../src/data/types.js';
 import { MAX_DOC_BYTES, ValidationError, normalizeDoc } from '../lib/tourContent.js';
 
 /**
- * Serves and updates the editable tour content behind the admin page.
+ * Serves and updates the editable tour content behind the admin page — and,
+ * despite the name, the home page content too (the `home` field). Keeping both
+ * in one document gives them one save, one conflict check and one publish.
  *
  * GET  — admin only (X-Admin-Password header, as GET has no body). Unlike the
  *        schedules endpoint this is not public: the same content is already
@@ -159,6 +161,11 @@ export default async (req: Request, _context: Context): Promise<Response> => {
       current.updatedAt = new Date().toISOString();
       await store.setJSON(CONTENT_KEY, current);
     }
+    // Documents saved before the Home Page tab existed have no `home`; the site
+    // was built from the seed, so that is what the admin should show. Not
+    // written back: the first save stores it, and leaving updatedAt alone keeps
+    // "Everything is published" accurate.
+    if (!current.home) current = { ...current, home: buildSeedHome() };
     const publishState = await readPublishState(store);
     return json({ ...current, publishedAt: publishState?.publishedAt ?? null });
   }
@@ -206,7 +213,7 @@ export default async (req: Request, _context: Context): Promise<Response> => {
 
     let normalized: TourContentDoc;
     try {
-      normalized = normalizeDoc(data);
+      normalized = normalizeDoc(data, existing?.home);
     } catch (error) {
       if (error instanceof ValidationError) return json({ error: error.message }, 400);
       throw error;

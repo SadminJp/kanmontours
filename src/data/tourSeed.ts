@@ -1,6 +1,10 @@
-import type { Locale, LocalizedTour, TourContent, TourContentDoc, TourEntry } from './types.js';
+import { HOME_IMAGE_SLOTS } from './types.js';
+import type { HomeContent, HomeImages, Locale, LocalizedTour, TourContent, TourContentDoc, TourEntry } from './types.js';
 import { toursEn } from './tours.en.js';
 import { toursJa } from './tours.ja.js';
+import { siteEn } from './site.en.js';
+import { siteJa } from './site.ja.js';
+import { homeImagesSeed } from './homeImages.js';
 
 /** Deterministic id from a slug, so reseeding twice produces the same document. */
 function seedId(slug: string): string {
@@ -14,6 +18,16 @@ function seedId(slug: string): string {
 function toLocalized(tour: TourContent): LocalizedTour {
   const { slug: _slug, ...rest } = tour;
   return rest;
+}
+
+/**
+ * The home page as committed in site.en.ts, site.ja.ts and homeImages.ts.
+ *
+ * Deep-copied so a caller that edits the result (the admin GET merges it into a
+ * response; tests mutate it) can never alter the module-level seed objects.
+ */
+export function buildSeedHome(): HomeContent {
+  return JSON.parse(JSON.stringify({ en: siteEn, ja: siteJa, images: homeImagesSeed }));
 }
 
 /**
@@ -44,6 +58,7 @@ export function buildSeedDoc(): TourContentDoc {
       en: toLocalized(tour),
       ja: toLocalized(jaBySlug.get(tour.slug)!),
     })),
+    home: buildSeedHome(),
   };
 }
 
@@ -93,6 +108,43 @@ export function assertValidDoc(doc: unknown): asserts doc is TourContentDoc {
         if (!Array.isArray(side[field])) {
           throw new Error(`${where}: "${locale}.${field}" must be a list.`);
         }
+      }
+    }
+  }
+
+  if (candidate.home !== undefined) assertValidHome(candidate.home);
+}
+
+/**
+ * Structural check of a stored home page. The server validates field by field
+ * on save; this only guards the build against a document that would render
+ * blank sections or a gallery with missing photos.
+ */
+function assertValidHome(home: unknown): asserts home is HomeContent {
+  const candidate = home as Partial<HomeContent> | null;
+  if (!candidate || typeof candidate !== 'object') throw new Error('home is malformed.');
+
+  for (const locale of ['en', 'ja'] as const) {
+    const side = candidate[locale] as unknown as Record<string, unknown> | undefined;
+    if (!side || typeof side !== 'object') throw new Error(`home is missing "${locale}" content.`);
+    for (const section of ['meta', 'hero', 'intro', 'cities', 'offer', 'tours', 'about', 'access', 'contact']) {
+      if (!side[section] || typeof side[section] !== 'object') {
+        throw new Error(`home.${locale}.${section} is missing.`);
+      }
+    }
+  }
+
+  const images = candidate.images as Partial<HomeImages> | undefined;
+  if (!images || typeof images !== 'object') throw new Error('home.images is missing.');
+  for (const [slot, count] of Object.entries(HOME_IMAGE_SLOTS)) {
+    const value = images[slot as keyof HomeImages] as unknown;
+    const list = count === null ? [value] : value;
+    if (!Array.isArray(list) || (count !== null && list.length !== count)) {
+      throw new Error(`home.images.${slot} should have ${count ?? 1} photo(s).`);
+    }
+    for (const image of list as Array<{ src?: unknown } | undefined>) {
+      if (!image || typeof image.src !== 'string' || !image.src) {
+        throw new Error(`home.images.${slot} has a photo with no file.`);
       }
     }
   }

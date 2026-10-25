@@ -1,4 +1,15 @@
-import type { LocalizedTour, TourContentDoc, TourEntry, TourImage } from '../../src/data/types.js';
+import { HOME_IMAGE_SLOTS } from '../../src/data/types.js';
+import type {
+  AccessGroup,
+  HomeContent,
+  HomeImage,
+  HomeImages,
+  LocalizedTour,
+  SiteContent,
+  TourContentDoc,
+  TourEntry,
+  TourImage,
+} from '../../src/data/types.js';
 
 /**
  * Validation for admin-submitted tour content.
@@ -124,7 +135,11 @@ function normalizeLocale(value: unknown, where: string): LocalizedTour {
   return out as unknown as LocalizedTour;
 }
 
-export function normalizeDoc(input: unknown): TourContentDoc {
+/**
+ * `existingHome` is what is stored now. A save that leaves `home` out — the
+ * sync script only sends tours — keeps it, rather than wiping the home page.
+ */
+export function normalizeDoc(input: unknown, existingHome?: HomeContent): TourContentDoc {
   const raw = (input ?? {}) as Record<string, unknown>;
   const tours = raw.tours;
 
@@ -169,7 +184,153 @@ export function normalizeDoc(input: unknown): TourContentDoc {
     };
   });
 
-  return { version: 1, updatedAt: new Date().toISOString(), tours: normalized };
+  const home = raw.home === undefined ? existingHome : normalizeHome(raw.home);
+  return { version: 1, updatedAt: new Date().toISOString(), tours: normalized, ...(home ? { home } : {}) };
+}
+
+/* --- home page ------------------------------------------------------------ */
+
+const HOME_LIST_LIMIT = 20;
+const ACCESS_GROUP_LIMIT = 10;
+const ACCESS_ROUTE_LIMIT = 15;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function requireString(value: unknown, where: string): string {
+  const cleaned = cleanString(value);
+  if (!cleaned) fail(`${where} cannot be empty.`);
+  return cleaned;
+}
+
+function homeSide(value: unknown, language: string): SiteContent {
+  if (!value || typeof value !== 'object') fail(`Home page (${language}) content is missing.`);
+  const raw = value as Record<string, any>;
+  const section = (name: string) => (raw[name] ?? {}) as Record<string, any>;
+  const at = (label: string) => `Home page (${language}) — ${label}`;
+
+  const meta = section('meta');
+  const hero = section('hero');
+  const intro = section('intro');
+  const cities = section('cities');
+  const offer = section('offer');
+  const tours = section('tours');
+  const about = section('about');
+  const access = section('access');
+  const contact = section('contact');
+
+  const city = (value: unknown, name: string) => {
+    const c = (value ?? {}) as Record<string, unknown>;
+    return {
+      title: requireString(c.title, at(`${name} title`)),
+      paragraphs: cleanStringList(c.paragraphs, HOME_LIST_LIMIT),
+    };
+  };
+
+  const groups: AccessGroup[] = (Array.isArray(access.groups) ? access.groups : [])
+    .slice(0, ACCESS_GROUP_LIMIT)
+    .map((group: any, g: number) => ({
+      heading: requireString(group?.heading, at(`Access group ${g + 1} heading`)),
+      routes: (Array.isArray(group?.routes) ? group.routes : [])
+        .slice(0, ACCESS_ROUTE_LIMIT)
+        .map((route: any, r: number) => ({
+          label: requireString(route?.label, at(`Access group ${g + 1}, route ${r + 1} label`)),
+          lines: cleanStringList(route?.lines, HOME_LIST_LIMIT),
+        })),
+    }));
+
+  const email = requireString(contact.email, at('Contact email'));
+  if (!EMAIL_RE.test(email)) fail(`${at('Contact email')}: "${email}" is not a valid email address.`);
+
+  return {
+    meta: {
+      title: requireString(meta.title, at('Search title')),
+      description: requireString(meta.description, at('Search description')),
+    },
+    hero: {
+      eyebrow: requireString(hero.eyebrow, at('Main heading')),
+      title: cleanStringList(hero.title, HOME_LIST_LIMIT),
+      tagline: requireString(hero.tagline, at('Tagline')),
+    },
+    intro: {
+      heading: requireString(intro.heading, at('Cities of the Strait heading')),
+      paragraphs: cleanStringList(intro.paragraphs, HOME_LIST_LIMIT),
+    },
+    cities: {
+      heading: requireString(cities.heading, at('About the Cities heading')),
+      kitakyushu: city(cities.kitakyushu, 'Kitakyushu'),
+      shimonoseki: city(cities.shimonoseki, 'Shimonoseki'),
+    },
+    offer: {
+      heading: requireString(offer.heading, at('What We Offer heading')),
+      paragraphs: cleanStringList(offer.paragraphs, HOME_LIST_LIMIT),
+      specialHeading: requireString(offer.specialHeading, at('What Makes Our Tours Special heading')),
+      specialPoints: cleanStringList(offer.specialPoints, HOME_LIST_LIMIT),
+    },
+    tours: {
+      heading: requireString(tours.heading, at('Tours heading')),
+      intro: cleanString(tours.intro),
+    },
+    about: {
+      heading: requireString(about.heading, at('About Us heading')),
+      paragraphs: cleanStringList(about.paragraphs, HOME_LIST_LIMIT),
+    },
+    access: {
+      heading: requireString(access.heading, at('Access heading')),
+      groups,
+    },
+    contact: {
+      heading: requireString(contact.heading, at('Contact heading')),
+      email,
+    },
+  };
+}
+
+function homeImage(value: unknown, where: string): HomeImage {
+  const raw = (value ?? {}) as Record<string, unknown>;
+  const src = cleanString(raw.src);
+  if (!src) fail(`${where}: photo is missing a file.`);
+  if (src.includes('..') || !IMAGE_SRC_RE.test(src)) fail(`${where}: "${src}" is not a valid image path.`);
+  const alt = (raw.alt ?? {}) as Record<string, unknown>;
+  return { src, alt: { en: cleanString(alt.en), ja: cleanString(alt.ja) } };
+}
+
+/** The admin's names for each photo slot, so an error points at what the client sees. */
+const SLOT_LABELS: Record<keyof HomeImages, string> = {
+  banners: 'Banner photos',
+  regionMap: 'Cities of the Strait map',
+  kitakyushuGallery: 'Kitakyushu photos',
+  shimonosekiGallery: 'Shimonoseki photos',
+  offerGallery: 'What We Offer photos',
+  aboutGallery: 'About Us photos',
+  accessMap: 'Access route map',
+};
+
+/**
+ * Photo slots have fixed counts: the galleries are laid out for exactly that
+ * many, so a save that adds or drops one is refused rather than reshaped.
+ */
+function homeImages(value: unknown): HomeImages {
+  const raw = (value ?? {}) as Record<string, unknown>;
+  const out = {} as Record<string, unknown>;
+  for (const [slot, count] of Object.entries(HOME_IMAGE_SLOTS)) {
+    const where = `Home page — ${SLOT_LABELS[slot as keyof HomeImages]}`;
+    if (count === null) {
+      out[slot] = homeImage(raw[slot], where);
+    } else {
+      const list = raw[slot];
+      if (!Array.isArray(list) || list.length !== count) fail(`${where}: expected exactly ${count} photos.`);
+      out[slot] = list.map((image, i) => homeImage(image, `${where} ${i + 1}`));
+    }
+  }
+  return out as unknown as HomeImages;
+}
+
+export function normalizeHome(input: unknown): HomeContent {
+  const raw = (input ?? {}) as Record<string, unknown>;
+  return {
+    en: homeSide(raw.en, 'English'),
+    ja: homeSide(raw.ja, 'Japanese'),
+    images: homeImages(raw.images),
+  };
 }
 
 function randomId(): string {

@@ -52,11 +52,58 @@ export interface TourEntry {
   ja: LocalizedTour;
 }
 
+/**
+ * The document stored in Netlify Blobs under the `tour-content` key. Despite the
+ * name it also carries the home page: one document means one save, one
+ * concurrency check and one publish for everything the admin edits.
+ *
+ * `home` is optional because documents saved before the Home Page tab existed
+ * don't have it; a missing `home` means "use the seed", which is exactly what
+ * the site showed at the time.
+ */
 export interface TourContentDoc {
   version: 1;
   updatedAt: string;
   tours: TourEntry[];
+  home?: HomeContent;
 }
+
+/** One photo on the home page: shared by both languages, described in each. */
+export interface HomeImage {
+  src: string;
+  alt: { en: string; ja: string };
+}
+
+/**
+ * The home page's photo slots. The counts are fixed (see HOME_IMAGE_SLOTS) so
+ * an edit can replace a photo but never leave a gallery with a hole in it.
+ */
+export interface HomeImages {
+  banners: HomeImage[];
+  regionMap: HomeImage;
+  kitakyushuGallery: HomeImage[];
+  shimonosekiGallery: HomeImage[];
+  offerGallery: HomeImage[];
+  aboutGallery: HomeImage[];
+  accessMap: HomeImage;
+}
+
+export interface HomeContent {
+  en: SiteContent;
+  ja: SiteContent;
+  images: HomeImages;
+}
+
+/** Gallery sizes the home page layout is built around; null = a single photo. */
+export const HOME_IMAGE_SLOTS: Record<keyof HomeImages, number | null> = {
+  banners: 2,
+  regionMap: null,
+  kitakyushuGallery: 3,
+  shimonosekiGallery: 3,
+  offerGallery: 2,
+  aboutGallery: 4,
+  accessMap: null,
+};
 
 export interface AccessRoute {
   label: string;

@@ -553,3 +553,34 @@ button.danger:hover { background: #fdf1f0; }
   color: var(--color-text-muted);
   margin: 0;
 }
+
+/* --- Home Page tab ------------------------------------------------------ */
+
+/* A photo is shared by both languages, so its row spans the full width and
+   only the descriptions split into language columns beneath it. */
+.photo-slot {
+  margin-bottom: 0.75rem;
+}
+
+.photo-slot .img-row img {
+  width: 120px;
+  height: 80px;
+}
+
+.photo-slot .field__cols {
+  margin-top: 0.4rem;
+}
+
+.access-group {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.6rem;
+  margin-bottom: 0.6rem;
+  background: #fdfcfa;
+}
+
+.access-route {
+  border-left: 3px solid var(--color-border);
+  padding-left: 0.6rem;
+  margin: 0.6rem 0;
+}
