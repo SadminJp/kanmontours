@@ -10,7 +10,7 @@
   <body>
     <main id="main">
       <h1>Kanmon Tours Admin</h1>
-      <p class="intro">Set the days each tour runs, and edit the wording and photos on the tour pages, the home page and the Terms &amp; Conditions.</p>
+      <p class="intro">Set the days each tour runs, and edit the wording and photos on every page of the website.</p>
 
       <div class="card" id="login-card">
         <h2>Admin Login</h2>
@@ -31,6 +31,7 @@
           <button type="button" class="tab" data-panel="panel-content">Tour Content</button>
           <button type="button" class="tab" data-panel="panel-home">Home Page</button>
           <button type="button" class="tab" data-panel="panel-policies">Terms &amp; Conditions</button>
+          <button type="button" class="tab" data-panel="panel-forms">Booking &amp; Inquiry</button>
         </div>
 
         <!-- Schedule and notification settings: these go live as soon as they
@@ -89,8 +90,8 @@
         <div data-panel-body="panel-content" hidden>
           <p class="publish-note" id="content-intro">
             Wording and photos are saved straight away, but the website is only updated when you
-            press <strong>Publish to website</strong>. Saving here also saves any unsaved changes on the Home Page and
-            Terms &amp; Conditions tabs. Schedule and email changes go live immediately.
+            press <strong>Publish to website</strong>. Saving here also saves any unsaved changes on the other
+            content tabs. Schedule and email changes go live immediately.
           </p>
 
           <div class="tabs tabs--tours" id="tour-tabs"></div>
@@ -111,7 +112,7 @@
         <div data-panel-body="panel-home" hidden>
           <p class="publish-note">
             Edit the home page in English and Japanese. Saving here also saves any unsaved changes on the
-            Tour Content and Terms &amp; Conditions tabs, and <strong>Publish to website</strong> puts them all live.
+            other content tabs, and <strong>Publish to website</strong> puts them all live.
           </p>
 
           <div class="tabs tabs--tours" id="home-tabs"></div>
@@ -132,7 +133,7 @@
         <div data-panel-body="panel-policies" hidden>
           <p class="publish-note">
             Edit the Terms &amp; Conditions page in English and Japanese. Saving here also saves any unsaved
-            changes on the Tour Content and Home Page tabs, and <strong>Publish to website</strong> puts them all live.
+            changes on the other content tabs, and <strong>Publish to website</strong> puts them all live.
           </p>
 
           <div id="policies-editor"></div>
@@ -146,6 +147,27 @@
             </div>
           </div>
         </div>
+
+        <!-- Booking Request and Inquiry page wording: part of the same document
+             as the other content tabs, so it shares their Save and Publish. -->
+        <div data-panel-body="panel-forms" hidden>
+          <p class="publish-note">
+            Edit the wording on the Booking Request and Inquiry pages in English and Japanese. Saving here also
+            saves any unsaved changes on the other content tabs, and <strong>Publish to website</strong> puts them all live.
+          </p>
+
+          <div class="tabs tabs--tours" id="forms-tabs"></div>
+          <div id="forms-editor"></div>
+
+          <div class="save-bar">
+            <p id="forms-status" class="status"></p>
+            <div class="save-row">
+              <button type="button" class="primary" id="forms-save-btn">Save Changes</button>
+              <button type="button" class="secondary" id="forms-publish-btn">Publish to website</button>
+              <button type="button" class="link" id="forms-logout-btn">Log out</button>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
 
@@ -155,6 +177,7 @@
     <script src="admin-content.js"></script>
     <script src="admin-home.js"></script>
     <script src="admin-policies.js"></script>
+    <script src="admin-forms.js"></script>
     <script src="admin-boot.js"></script>
   </body>
 </html>

@@ -70,9 +70,10 @@ function renderContent(doc) {
   }
   renderTourTabs();
   renderActiveTour();
-  // The Home Page and Terms & Conditions tabs edit the same document.
+  // The Home Page, Terms & Conditions and Booking & Inquiry tabs edit the same document.
   if (typeof renderHome === 'function') renderHome();
   if (typeof renderPolicies === 'function') renderPolicies();
+  if (typeof renderForms === 'function') renderForms();
   updatePublishState();
 }
 
@@ -458,10 +459,11 @@ function deleteTour(tour) {
  * rebuild. Saving every keystroke straight to a deploy would burn build
  * minutes and leave the client waiting minutes to see anything.
  *
- * The Tour Content, Home Page and Terms & Conditions tabs edit one document, so they share one
+ * All four content tabs (Tour Content, Home Page, Terms & Conditions, Booking &
+ * Inquiry) edit one document, so they share one
  * dirty flag, one Save and one Publish — each tab just has its own buttons.
  */
-var PUBLISH_BUTTON_IDS = ['publish-btn', 'home-publish-btn', 'policies-publish-btn'];
+var PUBLISH_BUTTON_IDS = ['publish-btn', 'home-publish-btn', 'policies-publish-btn', 'forms-publish-btn'];
 
 function updatePublishState() {
   if (!contentDoc) return;
@@ -488,7 +490,7 @@ function saveContent(statusEl, saveBtn) {
   postJson(CONTENT_URL, {
     password: password,
     baseUpdatedAt: contentDoc.updatedAt,
-    data: { tours: contentDoc.tours, home: contentDoc.home, policies: contentDoc.policies },
+    data: { tours: contentDoc.tours, home: contentDoc.home, policies: contentDoc.policies, forms: contentDoc.forms },
   })
     .then(function (body) {
       var published = contentDoc.publishedAt;

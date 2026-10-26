@@ -1,5 +1,15 @@
 import { HOME_IMAGE_SLOTS } from './types.js';
-import type { HomeContent, HomeImages, Locale, LocalizedTour, PoliciesDoc, TourContent, TourContentDoc, TourEntry } from './types.js';
+import type {
+  FormsDoc,
+  HomeContent,
+  HomeImages,
+  Locale,
+  LocalizedTour,
+  PoliciesDoc,
+  TourContent,
+  TourContentDoc,
+  TourEntry,
+} from './types.js';
 import { toursEn } from './tours.en.js';
 import { toursJa } from './tours.ja.js';
 import { siteEn } from './site.en.js';
@@ -7,6 +17,8 @@ import { siteJa } from './site.ja.js';
 import { homeImagesSeed } from './homeImages.js';
 import { policiesEn } from './policies.en.js';
 import { policiesJa } from './policies.ja.js';
+import { uiEn } from './ui.en.js';
+import { uiJa } from './ui.ja.js';
 
 /** Deterministic id from a slug, so reseeding twice produces the same document. */
 function seedId(slug: string): string {
@@ -35,6 +47,22 @@ export function buildSeedHome(): HomeContent {
 /** The Terms & Conditions page as committed in policies.en.ts / policies.ja.ts. Deep-copied like buildSeedHome. */
 export function buildSeedPolicies(): PoliciesDoc {
   return JSON.parse(JSON.stringify({ en: policiesEn, ja: policiesJa }));
+}
+
+/**
+ * The booking and inquiry page wording as committed in ui.en.ts / ui.ja.ts.
+ *
+ * Also serves as the schema: the server keeps exactly these keys per language
+ * when validating a save, which is how the Japanese form's extra field labels
+ * (and the English form's lack of them) are known without a second list.
+ */
+export function buildSeedForms(): FormsDoc {
+  return JSON.parse(
+    JSON.stringify({
+      en: { booking: uiEn.booking, inquiryForm: uiEn.inquiryForm },
+      ja: { booking: uiJa.booking, inquiryForm: uiJa.inquiryForm },
+    })
+  );
 }
 
 /**
@@ -67,6 +95,7 @@ export function buildSeedDoc(): TourContentDoc {
     })),
     home: buildSeedHome(),
     policies: buildSeedPolicies(),
+    forms: buildSeedForms(),
   };
 }
 
@@ -122,6 +151,26 @@ export function assertValidDoc(doc: unknown): asserts doc is TourContentDoc {
 
   if (candidate.home !== undefined) assertValidHome(candidate.home);
   if (candidate.policies !== undefined) assertValidPolicies(candidate.policies);
+  if (candidate.forms !== undefined) assertValidForms(candidate.forms);
+}
+
+/** Structural check of stored booking/inquiry wording, for the same reason as assertValidHome. */
+function assertValidForms(forms: unknown): asserts forms is FormsDoc {
+  const candidate = forms as Partial<FormsDoc> | null;
+  if (!candidate || typeof candidate !== 'object') throw new Error('forms is malformed.');
+  for (const locale of ['en', 'ja'] as const) {
+    const side = candidate[locale];
+    if (!side || typeof side !== 'object') throw new Error(`forms is missing "${locale}" content.`);
+    if (!side.booking || typeof side.booking.pageTitle !== 'string' || !side.booking.pageTitle.trim()) {
+      throw new Error(`forms.${locale}.booking.pageTitle is empty.`);
+    }
+    if (!side.booking.fields || typeof side.booking.fields !== 'object') {
+      throw new Error(`forms.${locale}.booking.fields is missing.`);
+    }
+    if (!side.inquiryForm || typeof side.inquiryForm.pageTitle !== 'string' || !side.inquiryForm.pageTitle.trim()) {
+      throw new Error(`forms.${locale}.inquiryForm.pageTitle is empty.`);
+    }
+  }
 }
 
 /** Structural check of a stored Terms & Conditions page, for the same reason as assertValidHome. */

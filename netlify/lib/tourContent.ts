@@ -1,6 +1,9 @@
 import { HOME_IMAGE_SLOTS } from '../../src/data/types.js';
+import { buildSeedForms } from '../../src/data/tourSeed.js';
 import type {
   AccessGroup,
+  FormsContent,
+  FormsDoc,
   HomeContent,
   HomeImage,
   HomeImages,
@@ -139,14 +142,15 @@ function normalizeLocale(value: unknown, where: string): LocalizedTour {
 }
 
 /**
- * `existingHome` / `existingPolicies` are what is stored now. A save that leaves
- * either out — the sync script only sends tours — keeps it, rather than wiping
- * the home page or the Terms & Conditions.
+ * `existingHome` / `existingPolicies` / `existingForms` are what is stored now.
+ * A save that leaves any of them out — the sync script only sends tours — keeps
+ * it, rather than wiping that page's text.
  */
 export function normalizeDoc(
   input: unknown,
   existingHome?: HomeContent,
-  existingPolicies?: PoliciesDoc
+  existingPolicies?: PoliciesDoc,
+  existingForms?: FormsDoc
 ): TourContentDoc {
   const raw = (input ?? {}) as Record<string, unknown>;
   const tours = raw.tours;
@@ -194,13 +198,82 @@ export function normalizeDoc(
 
   const home = raw.home === undefined ? existingHome : normalizeHome(raw.home);
   const policies = raw.policies === undefined ? existingPolicies : normalizePolicies(raw.policies);
+  const forms = raw.forms === undefined ? existingForms : normalizeForms(raw.forms);
   return {
     version: 1,
     updatedAt: new Date().toISOString(),
     tours: normalized,
     ...(home ? { home } : {}),
     ...(policies ? { policies } : {}),
+    ...(forms ? { forms } : {}),
   };
+}
+
+/* --- booking & inquiry page wording --------------------------------------- */
+
+/** The admin's names for each piece of wording, so an error points at what the client sees. */
+const FORM_LABELS: Record<string, string> = {
+  pageTitle: 'Page title',
+  step1: 'Step 1 heading',
+  step2: 'Step 2 heading',
+  calendarHint: 'Calendar hint',
+  loadingDates: 'Calendar loading message',
+  datesUnavailable: 'Calendar error message',
+  selectTourFirst: '"Choose a tour first" message',
+  selectedDate: '"Selected date" label',
+  step3: 'Step 3 heading',
+  step4: 'Step 4 heading',
+  termsAgree: 'Terms agreement text',
+  submit: 'Send button',
+  successMessage: 'Success message',
+  errorMessage: 'Error message',
+  intro: 'Introduction',
+  name: 'Name label',
+  email: 'Email label',
+  message: 'Message label',
+  totalParticipants: 'Participants label',
+  adults: 'Adults label',
+  underAge: 'Under-18 label',
+  representativeName: 'Representative name heading',
+  kanji: 'Kanji label',
+  katakana: 'Katakana label',
+  contact: 'Contact heading',
+  phone: 'Phone label',
+};
+
+/**
+ * Copies exactly the string keys the seed has at this level, each required.
+ *
+ * The seed is the schema: the Japanese booking form has labels the English one
+ * doesn't, and following the seed's shape keeps that straight without a second
+ * hand-maintained list. Keys the seed doesn't have are dropped.
+ */
+function followSeed(shape: Record<string, unknown>, input: unknown, at: (label: string) => string): Record<string, unknown> {
+  const raw = (input && typeof input === 'object' ? input : {}) as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const [key, seedValue] of Object.entries(shape)) {
+    if (typeof seedValue === 'string') {
+      out[key] = requireString(raw[key], at(FORM_LABELS[key] ?? key));
+    } else if (seedValue && typeof seedValue === 'object' && !Array.isArray(seedValue)) {
+      out[key] = followSeed(seedValue as Record<string, unknown>, raw[key], at);
+    }
+  }
+  return out;
+}
+
+function formsSide(seed: FormsContent, value: unknown, language: string): FormsContent {
+  if (!value || typeof value !== 'object') fail(`Booking & Inquiry (${language}) content is missing.`);
+  const raw = value as Record<string, unknown>;
+  return {
+    booking: followSeed(seed.booking as unknown as Record<string, unknown>, raw.booking, (label) => `Booking Request (${language}) — ${label}`) as unknown as FormsContent['booking'],
+    inquiryForm: followSeed(seed.inquiryForm as unknown as Record<string, unknown>, raw.inquiryForm, (label) => `Inquiry (${language}) — ${label}`) as unknown as FormsContent['inquiryForm'],
+  };
+}
+
+export function normalizeForms(input: unknown): FormsDoc {
+  const raw = (input ?? {}) as Record<string, unknown>;
+  const seed = buildSeedForms();
+  return { en: formsSide(seed.en, raw.en, 'English'), ja: formsSide(seed.ja, raw.ja, 'Japanese') };
 }
 
 /* --- terms & conditions --------------------------------------------------- */

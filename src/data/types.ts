@@ -68,6 +68,23 @@ export interface TourContentDoc {
   home?: HomeContent;
   /** Terms & Conditions page; absent = use the seed, like `home`. */
   policies?: PoliciesDoc;
+  /** Booking Request and Inquiry page wording; absent = use the seed, like `home`. */
+  forms?: FormsDoc;
+}
+
+/**
+ * The editable wording of the booking and inquiry pages. Which booking field
+ * labels exist differs by language (the Japanese form asks for more), and the
+ * seed in ui.en.ts / ui.ja.ts is what defines that — see buildSeedForms.
+ */
+export interface FormsContent {
+  booking: UiStrings['booking'];
+  inquiryForm: UiStrings['inquiryForm'];
+}
+
+export interface FormsDoc {
+  en: FormsContent;
+  ja: FormsContent;
 }
 
 export interface PoliciesDoc {
