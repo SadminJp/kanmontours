@@ -5,6 +5,9 @@ import type {
   HomeImage,
   HomeImages,
   LocalizedTour,
+  PoliciesContent,
+  PoliciesDoc,
+  PolicySection,
   SiteContent,
   TourContentDoc,
   TourEntry,
@@ -136,10 +139,15 @@ function normalizeLocale(value: unknown, where: string): LocalizedTour {
 }
 
 /**
- * `existingHome` is what is stored now. A save that leaves `home` out — the
- * sync script only sends tours — keeps it, rather than wiping the home page.
+ * `existingHome` / `existingPolicies` are what is stored now. A save that leaves
+ * either out — the sync script only sends tours — keeps it, rather than wiping
+ * the home page or the Terms & Conditions.
  */
-export function normalizeDoc(input: unknown, existingHome?: HomeContent): TourContentDoc {
+export function normalizeDoc(
+  input: unknown,
+  existingHome?: HomeContent,
+  existingPolicies?: PoliciesDoc
+): TourContentDoc {
   const raw = (input ?? {}) as Record<string, unknown>;
   const tours = raw.tours;
 
@@ -185,7 +193,50 @@ export function normalizeDoc(input: unknown, existingHome?: HomeContent): TourCo
   });
 
   const home = raw.home === undefined ? existingHome : normalizeHome(raw.home);
-  return { version: 1, updatedAt: new Date().toISOString(), tours: normalized, ...(home ? { home } : {}) };
+  const policies = raw.policies === undefined ? existingPolicies : normalizePolicies(raw.policies);
+  return {
+    version: 1,
+    updatedAt: new Date().toISOString(),
+    tours: normalized,
+    ...(home ? { home } : {}),
+    ...(policies ? { policies } : {}),
+  };
+}
+
+/* --- terms & conditions --------------------------------------------------- */
+
+const POLICY_SECTION_LIMIT = 30;
+const POLICY_LIST_LIMIT = 30;
+
+function policiesSide(value: unknown, language: string): PoliciesContent {
+  if (!value || typeof value !== 'object') fail(`Terms & Conditions (${language}) content is missing.`);
+  const raw = value as Record<string, unknown>;
+  const at = (label: string) => `Terms & Conditions (${language}) — ${label}`;
+
+  const sections = Array.isArray(raw.sections) ? raw.sections : [];
+  // An empty page would publish a Terms & Conditions page with nothing on it.
+  if (!sections.length) fail(at('needs at least one section.'));
+  if (sections.length > POLICY_SECTION_LIMIT) fail(at(`too many sections (limit ${POLICY_SECTION_LIMIT}).`));
+
+  return {
+    pageTitle: requireString(raw.pageTitle, at('Page title')),
+    sections: sections.map((entry, index): PolicySection => {
+      const section = (entry ?? {}) as Record<string, unknown>;
+      const paragraphs = cleanStringList(section.paragraphs, POLICY_LIST_LIMIT);
+      const list = cleanStringList(section.list, POLICY_LIST_LIMIT);
+      return {
+        heading: requireString(section.heading, at(`Section ${index + 1} heading`)),
+        // Left off when empty rather than stored as [], matching the seed files.
+        ...(paragraphs.length ? { paragraphs } : {}),
+        ...(list.length ? { list } : {}),
+      };
+    }),
+  };
+}
+
+export function normalizePolicies(input: unknown): PoliciesDoc {
+  const raw = (input ?? {}) as Record<string, unknown>;
+  return { en: policiesSide(raw.en, 'English'), ja: policiesSide(raw.ja, 'Japanese') };
 }
 
 /* --- home page ------------------------------------------------------------ */

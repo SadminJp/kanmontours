@@ -77,6 +77,7 @@ els.loginForm.addEventListener('submit', function (event) {
 document.getElementById('logout-btn').addEventListener('click', function () { showLogin(); });
 document.getElementById('content-logout-btn').addEventListener('click', function () { showLogin(); });
 document.getElementById('home-logout-btn').addEventListener('click', function () { showLogin(); });
+document.getElementById('policies-logout-btn').addEventListener('click', function () { showLogin(); });
 
 // Returning with a remembered password from earlier in this tab session:
 // re-check it quietly (it may have been changed on the server since) and

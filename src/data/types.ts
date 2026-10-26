@@ -66,6 +66,13 @@ export interface TourContentDoc {
   updatedAt: string;
   tours: TourEntry[];
   home?: HomeContent;
+  /** Terms & Conditions page; absent = use the seed, like `home`. */
+  policies?: PoliciesDoc;
+}
+
+export interface PoliciesDoc {
+  en: PoliciesContent;
+  ja: PoliciesContent;
 }
 
 /** One photo on the home page: shared by both languages, described in each. */

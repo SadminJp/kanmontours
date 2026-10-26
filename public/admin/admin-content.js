@@ -70,8 +70,9 @@ function renderContent(doc) {
   }
   renderTourTabs();
   renderActiveTour();
-  // The Home Page tab edits the same document (its `home` field).
+  // The Home Page and Terms & Conditions tabs edit the same document.
   if (typeof renderHome === 'function') renderHome();
+  if (typeof renderPolicies === 'function') renderPolicies();
   updatePublishState();
 }
 
@@ -457,10 +458,10 @@ function deleteTour(tour) {
  * rebuild. Saving every keystroke straight to a deploy would burn build
  * minutes and leave the client waiting minutes to see anything.
  *
- * The Tour Content and Home Page tabs edit one document, so they share one
+ * The Tour Content, Home Page and Terms & Conditions tabs edit one document, so they share one
  * dirty flag, one Save and one Publish — each tab just has its own buttons.
  */
-var PUBLISH_BUTTON_IDS = ['publish-btn', 'home-publish-btn'];
+var PUBLISH_BUTTON_IDS = ['publish-btn', 'home-publish-btn', 'policies-publish-btn'];
 
 function updatePublishState() {
   if (!contentDoc) return;
@@ -487,7 +488,7 @@ function saveContent(statusEl, saveBtn) {
   postJson(CONTENT_URL, {
     password: password,
     baseUpdatedAt: contentDoc.updatedAt,
-    data: { tours: contentDoc.tours, home: contentDoc.home },
+    data: { tours: contentDoc.tours, home: contentDoc.home, policies: contentDoc.policies },
   })
     .then(function (body) {
       var published = contentDoc.publishedAt;

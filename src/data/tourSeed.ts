@@ -1,10 +1,12 @@
 import { HOME_IMAGE_SLOTS } from './types.js';
-import type { HomeContent, HomeImages, Locale, LocalizedTour, TourContent, TourContentDoc, TourEntry } from './types.js';
+import type { HomeContent, HomeImages, Locale, LocalizedTour, PoliciesDoc, TourContent, TourContentDoc, TourEntry } from './types.js';
 import { toursEn } from './tours.en.js';
 import { toursJa } from './tours.ja.js';
 import { siteEn } from './site.en.js';
 import { siteJa } from './site.ja.js';
 import { homeImagesSeed } from './homeImages.js';
+import { policiesEn } from './policies.en.js';
+import { policiesJa } from './policies.ja.js';
 
 /** Deterministic id from a slug, so reseeding twice produces the same document. */
 function seedId(slug: string): string {
@@ -28,6 +30,11 @@ function toLocalized(tour: TourContent): LocalizedTour {
  */
 export function buildSeedHome(): HomeContent {
   return JSON.parse(JSON.stringify({ en: siteEn, ja: siteJa, images: homeImagesSeed }));
+}
+
+/** The Terms & Conditions page as committed in policies.en.ts / policies.ja.ts. Deep-copied like buildSeedHome. */
+export function buildSeedPolicies(): PoliciesDoc {
+  return JSON.parse(JSON.stringify({ en: policiesEn, ja: policiesJa }));
 }
 
 /**
@@ -59,6 +66,7 @@ export function buildSeedDoc(): TourContentDoc {
       ja: toLocalized(jaBySlug.get(tour.slug)!),
     })),
     home: buildSeedHome(),
+    policies: buildSeedPolicies(),
   };
 }
 
@@ -113,6 +121,28 @@ export function assertValidDoc(doc: unknown): asserts doc is TourContentDoc {
   }
 
   if (candidate.home !== undefined) assertValidHome(candidate.home);
+  if (candidate.policies !== undefined) assertValidPolicies(candidate.policies);
+}
+
+/** Structural check of a stored Terms & Conditions page, for the same reason as assertValidHome. */
+function assertValidPolicies(policies: unknown): asserts policies is PoliciesDoc {
+  const candidate = policies as Partial<PoliciesDoc> | null;
+  if (!candidate || typeof candidate !== 'object') throw new Error('policies is malformed.');
+  for (const locale of ['en', 'ja'] as const) {
+    const side = candidate[locale];
+    if (!side || typeof side !== 'object') throw new Error(`policies is missing "${locale}" content.`);
+    if (typeof side.pageTitle !== 'string' || !side.pageTitle.trim()) {
+      throw new Error(`policies.${locale}.pageTitle is empty.`);
+    }
+    if (!Array.isArray(side.sections) || !side.sections.length) {
+      throw new Error(`policies.${locale} has no sections.`);
+    }
+    side.sections.forEach((section, index) => {
+      if (!section || typeof section.heading !== 'string' || !section.heading.trim()) {
+        throw new Error(`policies.${locale}.sections[${index}] has no heading.`);
+      }
+    });
+  }
 }
 
 /**
